@@ -1,0 +1,8 @@
+{
+  "name": "Cap",
+  "image": "bilder/tiere-10.png",
+  "rarity": "gewoehnlich",
+  "haeufigkeit": "normal",
+  "value": 15,
+  "text": "I call cap."
+}
