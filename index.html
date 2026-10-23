@@ -718,8 +718,8 @@ function drawItem(gold) {
   const pool = CATALOG.filter(it => it.rarity === tier.id);
   return pickWeighted(pool, itemWeight);
 }
-// Gewicht eines Fundstücks innerhalb seiner Stufe: teurere seltener, dazu die eingestellte Häufigkeit
-function itemWeight(it) { return (RBY[it.rarity].priceless ? 1 : 1 / Math.sqrt(Math.max(1, it.value))) * (it.weight || 1); }
+// Gewicht eines Fundstücks innerhalb seiner Stufe: alle gleich, außer die Häufigkeit ist heruntergesetzt (der Wert spielt keine Rolle)
+function itemWeight(it) { return it.weight || 1; }
 // Tatsächliche Chancen je Stufe und je Fundstück, für normales Los und Goldlos
 function computeOdds() {
   const out = { tier: { normal: {}, gold: {} }, item: { normal: {}, gold: {} } };
@@ -2239,7 +2239,7 @@ function openDevPanel() {
     </div>
     <div class="section">
       <h3>Chancen pro Los</h3>
-      <p>So wahrscheinlich ist jede Seltenheit und jedes Fundstück im Moment. Stufen ohne Fundstück fallen weg, ihre Chance verteilt sich auf die anderen. Innerhalb einer Stufe kommen teurere Stücke seltener, dazu wirkt die Häufigkeit aus der Eingabemaske.</p>
+      <p>So wahrscheinlich ist jede Seltenheit und jedes Fundstück im Moment. Stufen ohne Fundstück fallen weg, ihre Chance verteilt sich auf die anderen. Innerhalb einer Stufe sind alle Stücke gleich häufig, außer du hast bei einem die Häufigkeit heruntergesetzt. Der Wert spielt keine Rolle.</p>
       <div style="overflow-x:auto"><table class="odds dev-table"><thead><tr><th>Stück</th><th>Wert</th><th>Los</th><th>Goldlos</th></tr></thead><tbody>${rows}</tbody></table></div>
       <p class="hint">Grundwerte: Gewöhnlich 50 · Ungewöhnlich 28 · Selten 15 · Episch 5 · Legendär 1,8 · Mythisch 0,2. Beim Goldlos fällt Gewöhnlich weg, und ab Selten zählt jede Stufe doppelt.</p>
     </div>

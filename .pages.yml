@@ -47,7 +47,7 @@ content:
       - name: haeufigkeit
         label: Häufigkeit
         type: select
-        description: Macht das Stück innerhalb seiner Seltenheit seltener. Leer lassen = normal. Teurere Stücke kommen ohnehin etwas seltener.
+        description: Macht das Stück innerhalb seiner Seltenheit seltener. Leer lassen = normal. Der Wert hat keinen Einfluss auf die Chance.
         options:
           values:
             - name: normal

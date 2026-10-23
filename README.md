@@ -32,7 +32,7 @@ Die Inventarnummer kannst du leer lassen, sie wird automatisch vergeben.
 
 Chance pro Los je Seltenheit: Gewöhnlich 50 %, Ungewöhnlich 28 %, Selten 15 %, Episch 5 %,
 Legendär 1,8 %, Mythisch 0,2 %. Stufen ohne Fundstück fallen weg, die Chancen verteilen sich dann neu.
-Mehrere Fundstücke derselben Seltenheit teilen sich deren Chance, teurere kommen etwas seltener.
+Mehrere Fundstücke derselben Seltenheit teilen sich deren Chance zu gleichen Teilen. Der Wert hat keinen Einfluss.
 Mit dem Feld **Häufigkeit** in der Eingabemaske machst du ein einzelnes Stück innerhalb seiner
 Seltenheit seltener (halb so oft, ein Viertel oder ein Zehntel so oft).
 
