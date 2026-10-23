@@ -10,6 +10,8 @@ import { join, basename } from "node:path";
 const ROOT = process.cwd();
 const OUT = join(ROOT, "_site");
 const ITEMS_DIR = join(ROOT, "fundstuecke");
+// Häufigkeit innerhalb der Seltenheit (Feld „haeufigkeit“ in der Eingabemaske)
+const WEIGHT = { "": 1, normal: 1, seltener: 0.5, "deutlich-seltener": 0.25, "sehr-selten": 0.1 };
 const RARITY = { gewoehnlich: "gewoehnlich", "gewöhnlich": "gewoehnlich", ungewoehnlich: "ungewoehnlich", "ungewöhnlich": "ungewoehnlich",
   selten: "selten", episch: "episch", legendaer: "legendaer", "legendär": "legendaer", mythisch: "mythisch" };
 
@@ -39,6 +41,7 @@ for (const f of existsSync(ITEMS_DIR) ? readdirSync(ITEMS_DIR).filter(n => n.end
     id: basename(f, ".json"), name, rarity, image,
     value: Math.max(0, Math.round(Number(d.value) || 0)),
     text: String(d.text || "").trim(),
+    weight: WEIGHT[String(d.haeufigkeit ?? "").trim().toLowerCase()] ?? (Number(d.haeufigkeit) > 0 ? Math.min(1, Number(d.haeufigkeit)) : 1),
     nr: Number.isFinite(Number(d.nr)) && Number(d.nr) > 0 ? Math.floor(Number(d.nr)) : 0,
     _added: addedAt(path)
   });

@@ -33,6 +33,16 @@ Die Inventarnummer kannst du leer lassen, sie wird automatisch vergeben.
 Chance pro Los je Seltenheit: Gewöhnlich 50 %, Ungewöhnlich 28 %, Selten 15 %, Episch 5 %,
 Legendär 1,8 %, Mythisch 0,2 %. Stufen ohne Fundstück fallen weg, die Chancen verteilen sich dann neu.
 Mehrere Fundstücke derselben Seltenheit teilen sich deren Chance, teurere kommen etwas seltener.
+Mit dem Feld **Häufigkeit** in der Eingabemaske machst du ein einzelnes Stück innerhalb seiner
+Seltenheit seltener (halb so oft, ein Viertel oder ein Zehntel so oft).
+
+## Entwicklermodus
+
+5× schnell auf das Logo „Rubbelmuseum“ oben links tippen und die PIN eingeben. Der Modus nutzt
+einen eigenen Test-Spielstand mit 1000 Münzen, Tages- und Übungsrunde sind unbegrenzt. Über das
+Kennzeichen „TEST“ oben öffnest du die Werkzeuge: Münzen auffüllen, einen Tag vorspringen,
+Test-Spielstand zurücksetzen und die genaue Chance jedes Fundstücks für Los und Goldlos.
+„Entwicklermodus verlassen“ bringt dich zurück zu deinem normalen Spielstand.
 
 ## An Freunde geben
 

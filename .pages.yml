@@ -44,6 +44,20 @@ content:
               label: Legendär
             - name: mythisch
               label: Mythisch
+      - name: haeufigkeit
+        label: Häufigkeit
+        type: select
+        description: Macht das Stück innerhalb seiner Seltenheit seltener. Leer lassen = normal. Teurere Stücke kommen ohnehin etwas seltener.
+        options:
+          values:
+            - name: normal
+              label: Normal
+            - name: seltener
+              label: Seltener (halb so oft)
+            - name: deutlich-seltener
+              label: Deutlich seltener (ein Viertel so oft)
+            - name: sehr-selten
+              label: Sehr selten (ein Zehntel so oft)
       - name: value
         label: Wert in Euro
         type: number
