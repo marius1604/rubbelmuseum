@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F2F2F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0F1012" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
@@ -70,6 +70,7 @@
   color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
+html, body, .scroll, .brand, button, a, input, label, textarea { touch-action: manipulation; }
 [hidden] { display: none !important; }
 html { background: var(--bg); }
 body {
@@ -285,7 +286,7 @@ input[type=file] { display: none; }
 .play { display: flex; flex-direction: column; padding: 0 16px 12px; gap: 12px; }
 .stage { flex: 1; min-height: 0; container-type: size; display: grid; place-items: center; }
 .ticket {
-  --tw: min(100cqw, 100cqh * 0.70, 400px);
+  --tw: min(100cqw, 100cqh * 0.68, 400px);
   --r: var(--r-gewoehnlich);
   width: var(--tw); font-size: calc(var(--tw) * 0.042);
   position: relative; background: var(--surface); border-radius: 1.1em; padding: 1em 1em .4em;
@@ -314,7 +315,7 @@ input[type=file] { display: none; }
 .t-perf::before { content: ""; position: absolute; left: 1.2em; right: 1.2em; top: 50%; border-top: 1px dashed var(--line-2); }
 .t-perf::after { content: ""; position: absolute; inset: 0;
   background: radial-gradient(circle at 0 50%, var(--bg) .5em, transparent .54em), radial-gradient(circle at 100% 50%, var(--bg) .5em, transparent .54em); }
-.t-plate { height: 4.9em; display: flex; flex-direction: column; justify-content: center; gap: .3em; padding: 0 .1em; overflow: hidden; }
+.t-plate { height: 6.1em; display: flex; flex-direction: column; justify-content: center; gap: .3em; padding: 0 .1em; overflow: hidden; }
 .plate-pre .big { font: 600 1.3em/1.15 var(--f-ui); letter-spacing: -0.02em; }
 .plate-pre .small { font-size: .82em; color: var(--ink-2); display: flex; align-items: center; gap: .3em; flex-wrap: wrap; }
 .plate-post { display: flex; flex-direction: column; gap: .3em; }
@@ -322,6 +323,8 @@ input[type=file] { display: none; }
 .plate-name { font: 600 1.45em/1.1 var(--f-ui); letter-spacing: -0.025em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .plate-value { font: 500 1em/1 var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .plate-status { font-size: .8em; color: var(--ink-3); }
+.plate-text { font-size: .7em; line-height: 1.35; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: .15em; }
+.ticket.gold .plate-text { color: #7A6338; }
 .plate-status.is-new { color: var(--brass-ink); font-weight: 600; }
 .plate-in { animation: rise .45s cubic-bezier(.2,.8,.2,1) both; }
 
@@ -473,7 +476,8 @@ input[type=file] { display: none; }
 .odds th { font: 500 .74rem/1 var(--f-ui); color: var(--ink-3); }
 .odds td:nth-child(n+2), .odds th:nth-child(n+2) { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 
-@media (max-width: 380px) { .chip .wide { display: none; } .goals { grid-template-columns: 1fr; } }
+@media (max-width: 440px) { .chip .wide { display: none; } }
+@media (max-width: 380px) { .goals { grid-template-columns: 1fr; } .brand { font-size: .95rem; } .chips { gap: 10px; } #chip-progress { display: none; } }
 @media (max-height: 640px) { .topbar { height: 44px; } .buy-btn { height: 50px; } .tab { height: 46px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; } }
 </style>
@@ -522,6 +526,7 @@ input[type=file] { display: none; }
           <div class="plate-post" id="plate-post" hidden>
             <div class="plate-row"><span class="pill" id="res-pill">Gewöhnlich</span><span class="plate-status" id="res-status"></span></div>
             <div class="plate-row"><span class="plate-name" id="res-name"></span><span class="plate-value" id="res-value"></span></div>
+            <div class="plate-text" id="res-text" hidden></div>
           </div>
         </div>
       </div>
@@ -936,6 +941,7 @@ function showPlatePost(it, entry, isNew, animate) {
   const pill = $("res-pill"); pill.dataset.rarity = it.rarity; pill.textContent = RBY[it.rarity].name;
   $("res-name").textContent = it.name;
   $("res-value").textContent = valueLabel(it);
+  const tx = $("res-text"); tx.textContent = it.text || ""; tx.hidden = !it.text;
   const st = $("res-status");
   st.textContent = isNew ? "Neu im Museum" : `Jetzt ${entry ? entry.n : 1}× im Museum`;
   st.classList.toggle("is-new", isNew);
