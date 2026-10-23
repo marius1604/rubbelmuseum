@@ -679,6 +679,7 @@ function loadSave() {
 }
 let warned = false;
 function persist() {
+  if (saveLocked) return;
   save.updated = Date.now();
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); storageOk = true; }
   catch (e) { storageOk = false; if (!warned) { warned = true; toast("Speichern ist in diesem Browser gerade nicht möglich."); } }
@@ -689,7 +690,8 @@ function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs
 let save = loadSave();
 let catalogReady = false;
 // Lokal sichern, ohne den Stand als „neuer“ zu markieren (beim Verlassen der Seite)
-function persistLocal() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
+let saveLocked = false; // beim Zurücksetzen: nichts mehr zurückschreiben, bevor die Seite neu lädt
+function persistLocal() { if (saveLocked) return; try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
 const prefs = Object.assign({ sort: "neu" }, loadPrefs());
 try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
 
@@ -2255,6 +2257,7 @@ function openDevPanel() {
     box.innerHTML = `<div class="confirm">Test-Spielstand löschen und mit 1000 Münzen neu starten?<div class="row"><button class="btn danger sm" id="dv-yes">Zurücksetzen</button><button class="btn quiet sm" id="dv-no">Abbrechen</button></div></div>`;
     box.querySelector("#dv-no").onclick = () => { box.innerHTML = ""; };
     box.querySelector("#dv-yes").onclick = () => {
+      saveLocked = true;
       try { localStorage.removeItem(SAVE_KEY); localStorage.removeItem(DEV_DAY_KEY); } catch (e) {}
       location.reload();
     };
