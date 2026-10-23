@@ -1,0 +1,8 @@
+{
+  "name": "Laptop",
+  "image": "bilder/tiere-13.png",
+  "rarity": "ungewoehnlich",
+  "haeufigkeit": "normal",
+  "value": 500,
+  "text": "Ein Laptop, auf dem neusten Stand der Technologie!"
+}
