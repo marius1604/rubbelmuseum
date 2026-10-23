@@ -1,0 +1,8 @@
+{
+  "name": "Bierflasche",
+  "image": "bilder/bierflasche.webp",
+  "rarity": "gewoehnlich",
+  "value": 2,
+  "text": "Gut gekühlt, Kronkorken noch drauf. Laut Etikett von Premium-Qualität.",
+  "nr": 2
+}

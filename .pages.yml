@@ -1,0 +1,58 @@
+# Eingabemaske für Pages CMS (app.pagescms.org)
+media:
+  input: bilder
+  output: bilder
+
+content:
+  - name: fundstuecke
+    label: Fundstücke
+    type: collection
+    path: fundstuecke
+    format: json
+    filename: "{primary}.json"
+    view:
+      primary: name
+      fields: [name, rarity, value]
+    fields:
+      - name: name
+        label: Name
+        type: string
+        required: true
+      - name: image
+        label: Bild
+        type: image
+        required: true
+        description: Am besten PNG oder WebP mit transparentem Hintergrund, etwa 800 × 800 Pixel.
+        options:
+          extensions: [png, webp, jpg, jpeg, gif, svg]
+          rename: safe
+      - name: rarity
+        label: Seltenheit
+        type: select
+        required: true
+        options:
+          values:
+            - name: gewoehnlich
+              label: Gewöhnlich
+            - name: ungewoehnlich
+              label: Ungewöhnlich
+            - name: selten
+              label: Selten
+            - name: episch
+              label: Episch
+            - name: legendaer
+              label: Legendär
+            - name: mythisch
+              label: Mythisch
+      - name: value
+        label: Wert in Euro
+        type: number
+        description: Bei „Mythisch“ zeigt die App „Unbezahlbar“ an.
+      - name: text
+        label: Beschreibung
+        type: text
+        description: Ein, zwei Sätze für das Museumsschild.
+      - name: nr
+        label: Inventarnummer
+        type: number
+        description: Leer lassen, dann vergibt die App die nächste freie Nummer.

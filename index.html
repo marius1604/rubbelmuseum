@@ -1,0 +1,2199 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1012" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rubbelmuseum">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="Französisch lernen, Münzen sammeln, Rubbellose freirubbeln und das eigene Museum füllen.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Rubbelmuseum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: App mit drei Ansichten (Lernen · Los · Museum) über einer Tab-Leiste.
+   Richtung: helle Galerie. Neutrale Wände, Tinte für Aktionen, Messing nur für Münzen. */
+:root {
+  --bg: #F2F2F0;
+  --surface: #FFFFFF;
+  --sunken: #EAEAE7;
+  --field: #F0F0EE;
+  --ink: #151619;
+  --ink-2: #5C5F66;
+  --ink-3: #9A9CA2;
+  --line: #E2E2DE;
+  --line-2: #CFCFCA;
+  --on-ink: #FFFFFF;
+  --brass: #B08130;
+  --coin-line: #F5DFAE;
+  --brass-ink: #7A5715;
+  --brass-soft: #F5EEDF;
+  --flame: #D9662B;
+  --ok: #2E7A4D;
+  --ok-soft: #E6F1EA;
+  --bad: #B5452F;
+  --bad-soft: #F8E7E2;
+  --wall: #FBFBFA;
+  --shadow: 0 1px 2px rgba(21,22,25,.05), 0 10px 30px -18px rgba(21,22,25,.28);
+  --r-gewoehnlich: #8C8F94;
+  --r-ungewoehnlich: #3C8C5A;
+  --r-selten: #2F6FB8;
+  --r-episch: #8150C4;
+  --r-legendaer: #C9861A;
+  --r-mythisch: #1FA3A8;
+  --f-ui: "Geist", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  height: 100%;
+  box-sizing: border-box;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1012; --surface: #18191C; --sunken: #1F2024; --field: #212226; --ink: #F1F1EF; --ink-2: #A5A7AD; --ink-3: #6D6F76;
+    --line: #27282C; --line-2: #3A3B40; --on-ink: #111214; --brass: #D3A452; --coin-line: #FFE7B3; --brass-ink: #E5BE72; --brass-soft: #2A2316;
+    --flame: #F08A4B; --ok: #62BD87; --ok-soft: #15261C; --bad: #E58069; --bad-soft: #2E1915; --wall: #141518;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 30px -16px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1012; --surface: #18191C; --sunken: #1F2024; --field: #212226; --ink: #F1F1EF; --ink-2: #A5A7AD; --ink-3: #6D6F76;
+  --line: #27282C; --line-2: #3A3B40; --on-ink: #111214; --brass: #D3A452; --coin-line: #FFE7B3; --brass-ink: #E5BE72; --brass-soft: #2A2316;
+  --flame: #F08A4B; --ok: #62BD87; --ok-soft: #15261C; --bad: #E58069; --bad-soft: #2E1915; --wall: #141518;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 30px -16px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { background: var(--bg); }
+body {
+  height: 100%; margin: 0; overflow: hidden;
+  background: var(--bg); color: var(--ink);
+  font: 400 16px/1.45 var(--f-ui);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent; overscroll-behavior: none; touch-action: manipulation;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+h1, h2, h3 { text-wrap: balance; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+.app { height: 100%; display: flex; flex-direction: column; max-width: 560px; margin: 0 auto; }
+.view { flex: 1; min-height: 0; position: relative; }
+.scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.pane { padding: 4px 16px 32px; display: flex; flex-direction: column; gap: 20px; min-height: 100%; }
+
+/* ---------- Kopfzeile ---------- */
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 52px; flex: none; }
+.brand { display: flex; align-items: center; gap: 9px; font: 600 1.02rem/1 var(--f-ui); letter-spacing: -0.015em; }
+.brand svg { width: 22px; height: 22px; flex: none; }
+.chips { display: flex; gap: 14px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 500 .9rem/1 var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+.chip .muted { color: var(--ink-3); }
+#chip-progress { gap: 0; }
+.chip svg { width: 16px; height: 16px; flex: none; }
+.chip-streak.off svg { opacity: .3; filter: grayscale(1); }
+.chip-streak.off { color: var(--ink-3); }
+.chip.bump { animation: bump .5s cubic-bezier(.2,.9,.3,1.3); }
+@keyframes bump { 40% { transform: scale(1.18); } }
+.coin { width: 1em; height: 1em; vertical-align: -0.13em; flex: none; }
+
+/* ---------- Allgemein ---------- */
+.eyebrow { font: 500 .75rem/1.2 var(--f-ui); letter-spacing: .04em; color: var(--ink-3); }
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.section-title h2 { margin: 0; font: 600 1.05rem/1.2 var(--f-ui); letter-spacing: -0.01em; }
+.section-title span { font: 500 .8rem/1 var(--f-mono); color: var(--ink-3); }
+.panel { background: var(--surface); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow); }
+.panel p, .sheet p { margin: 0; color: var(--ink-2); font-size: .93rem; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 50px; padding: 0 20px;
+  border: 0; border-radius: 12px; background: var(--ink); color: var(--on-ink); font: 600 1rem/1 var(--f-ui); letter-spacing: -0.005em;
+  transition: transform .12s ease, opacity .2s ease; flex: 1 1 auto;
+}
+.btn:active:not(:disabled) { transform: scale(.985); }
+.btn.secondary { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line-2); }
+.btn.quiet { background: var(--field); color: var(--ink); }
+.btn.danger { background: var(--bad); color: #fff; }
+.btn.sm { height: 38px; padding: 0 14px; font-size: .88rem; border-radius: 10px; flex: none; }
+.btn:disabled { opacity: .35; cursor: default; }
+.btn .coin { width: 1.05em; height: 1.05em; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row > .btn { flex: 1 1 140px; }
+.link-btn { background: none; border: 0; padding: 0; color: var(--ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-2); }
+.hint { font-size: .82rem; color: var(--ink-3); }
+
+/* Felder */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > span { font: 500 .8rem/1.2 var(--f-ui); color: var(--ink-2); }
+input[type=text], input[type=number], textarea {
+  width: 100%; border: 0; border-radius: 10px; background: var(--field); color: var(--ink);
+  padding: 13px 14px; font: 400 1rem/1.3 var(--f-ui); outline: none;
+  box-shadow: inset 0 0 0 1px transparent; transition: box-shadow .15s ease, background .15s ease;
+}
+input[type=text]:focus, input[type=number]:focus, textarea:focus { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--ink); }
+input::placeholder, textarea::placeholder { color: var(--ink-3); }
+textarea { resize: vertical; min-height: 96px; }
+textarea.code { font: 400 .74rem/1.4 var(--f-mono); word-break: break-all; min-height: 72px; }
+input[type=file] { display: none; }
+
+/* ---------- Lernen: Übersicht ---------- */
+.hero { background: var(--surface); border-radius: 20px; padding: 22px 20px 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow); }
+.hero h2 { margin: 0; font: 600 1.75rem/1.1 var(--f-ui); letter-spacing: -0.03em; }
+.hero p { margin: 0; color: var(--ink-2); }
+.hero .facts-line { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .88rem; color: var(--ink-2); }
+.hero .facts-line b { color: var(--ink); font: 500 .9rem/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.hero .facts-line span { display: inline-flex; align-items: center; gap: 6px; }
+.done-row { display: flex; align-items: center; gap: 14px; }
+.done-check { width: 40px; height: 40px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; flex: none; }
+.done-check svg { width: 20px; height: 20px; }
+.countdown { font: 500 .92rem/1 var(--f-mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.list { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+.list-row { display: flex; align-items: center; gap: 14px; padding: 16px 18px; }
+.list-row + .list-row { border-top: 1px solid var(--line); }
+.list-row .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.list-row h3 { margin: 0; font: 600 1rem/1.25 var(--f-ui); letter-spacing: -0.01em; }
+.list-row p { margin: 0; font-size: .86rem; color: var(--ink-2); }
+
+.streak { display: grid; grid-template-columns: 1fr auto; gap: 16px 12px; align-items: end; }
+.streak-n { display: flex; align-items: baseline; gap: 8px; }
+.streak-n b { font: 600 2.6rem/.9 var(--f-ui); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.streak-n span { color: var(--ink-2); font-size: .9rem; }
+.mult { text-align: right; }
+.mult b { display: block; font: 500 1.3rem/1 var(--f-mono); color: var(--brass-ink); font-variant-numeric: tabular-nums; }
+.mult span { font-size: .75rem; color: var(--ink-3); }
+.goals { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.goal { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.goal-head { display: flex; justify-content: space-between; gap: 8px; font-size: .78rem; color: var(--ink-2); }
+.goal-head b { color: var(--ink); font-weight: 600; }
+.goal-head .mono { color: var(--ink-3); }
+.ticks { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.ticks i { height: 4px; border-radius: 4px; background: var(--sunken); }
+.ticks i.on { background: var(--flame); }
+.bar { height: 4px; border-radius: 4px; background: var(--sunken); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); border-radius: inherit; }
+.bar.flame i { background: var(--flame); }
+
+.vstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border-radius: 12px; overflow: hidden; }
+.vstat { background: var(--surface); padding: 12px 4px 2px 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.vstat b { font: 600 1.5rem/1 var(--f-ui); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.vstat span { font-size: .76rem; color: var(--ink-3); }
+.vstats.flat { background: none; gap: 12px; }
+.boxbar { display: flex; height: 6px; border-radius: 6px; overflow: hidden; background: var(--sunken); gap: 2px; }
+.boxbar i { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .76rem; color: var(--ink-3); }
+.legend i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+
+/* ---------- Quiz ---------- */
+.quiz { display: flex; flex-direction: column; gap: 18px; flex: 1; }
+.q-top { display: flex; align-items: center; gap: 12px; }
+.q-close { width: 36px; height: 36px; border-radius: 50%; border: 0; background: transparent; display: grid; place-items: center; flex: none; color: var(--ink-2); margin-left: -8px; }
+.q-close svg { width: 16px; height: 16px; }
+.q-prog { flex: 1; display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+.q-prog i { height: 4px; border-radius: 4px; background: var(--sunken); }
+.q-prog i.ok { background: var(--ok); }
+.q-prog i.bad { background: var(--bad); }
+.q-prog i.cur { background: var(--ink); }
+.q-earn { display: inline-flex; align-items: center; gap: 5px; font: 500 .9rem/1 var(--f-mono); font-variant-numeric: tabular-nums; flex: none; }
+.q-earn.practice { font: 500 .78rem/1 var(--f-ui); color: var(--ink-3); }
+
+.q-card { padding: 28px 4px 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.q-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: .85rem; color: var(--ink-2); }
+.q-badge { font: 500 .75rem/1 var(--f-ui); padding: 4px 8px; border-radius: 6px; }
+.q-badge.new { background: var(--ok-soft); color: var(--ok); }
+.q-badge.rew { background: var(--brass-soft); color: var(--brass-ink); display: inline-flex; align-items: center; gap: 4px; font-family: var(--f-mono); }
+.q-word { font: 600 clamp(2rem, 9vw, 2.6rem)/1.08 var(--f-ui); letter-spacing: -0.035em; overflow-wrap: anywhere; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.q-flag { font: 500 .7rem/1 var(--f-mono); color: var(--ink-3); letter-spacing: .06em; border: 1px solid var(--line-2); border-radius: 4px; padding: 3px 4px; align-self: center; }
+.q-theme { font-size: .8rem; color: var(--ink-3); }
+.speak { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--field); display: inline-grid; place-items: center; flex: none; color: var(--ink); }
+.speak svg { width: 18px; height: 18px; }
+.speak.sm { width: 32px; height: 32px; }
+.speak.sm svg { width: 15px; height: 15px; }
+.speak.playing { background: var(--brass-soft); color: var(--brass-ink); }
+
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  display: flex; align-items: center; gap: 14px; min-height: 56px; width: 100%; text-align: left;
+  border: 0; border-radius: 12px; background: var(--surface); padding: 12px 16px; font: 500 1.02rem/1.25 var(--f-ui);
+  box-shadow: inset 0 0 0 1px var(--line); transition: box-shadow .15s ease, background .15s ease, transform .1s ease;
+}
+.opt kbd { font: 500 .72rem/1 var(--f-mono); color: var(--ink-3); width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; background: var(--field); flex: none; }
+.opt span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+@media (hover: hover) { .opt:hover:not(:disabled) { box-shadow: inset 0 0 0 1.5px var(--ink); } }
+.opt:active:not(:disabled) { transform: scale(.99); }
+.opt:disabled { cursor: default; color: var(--ink-3); }
+.opt.right { background: var(--ok-soft); color: var(--ok); box-shadow: inset 0 0 0 1.5px var(--ok); }
+.opt.wrong { background: var(--bad-soft); color: var(--bad); box-shadow: inset 0 0 0 1.5px var(--bad); }
+.opt.right kbd, .opt.wrong kbd { background: transparent; color: inherit; }
+
+.write { display: flex; flex-direction: column; gap: 12px; }
+.write input[type=text] { font-size: 1.25rem; padding: 16px; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2); }
+.write input[type=text]:focus { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.write input.right { background: var(--ok-soft) !important; color: var(--ok); box-shadow: inset 0 0 0 1.5px var(--ok) !important; }
+.write input.wrong { background: var(--bad-soft) !important; color: var(--bad); box-shadow: inset 0 0 0 1.5px var(--bad) !important; }
+.accents { display: flex; flex-wrap: wrap; gap: 6px; }
+.accents button { min-width: 38px; height: 38px; border-radius: 8px; border: 0; background: var(--field); font: 500 1rem/1 var(--f-ui); padding: 0 8px; }
+.accents button:active { background: var(--sunken); }
+
+.fb { border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; animation: rise .28s cubic-bezier(.2,.8,.2,1) both; background: var(--surface); box-shadow: var(--shadow); }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.fb-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 600 1.05rem/1.2 var(--f-ui); }
+.fb.ok .fb-title { color: var(--ok); }
+.fb.bad .fb-title { color: var(--bad); }
+.fb-coins { display: inline-flex; align-items: center; gap: 5px; font: 500 .95rem/1 var(--f-mono); color: var(--brass-ink); }
+.fb-ans { display: flex; align-items: center; gap: 12px; font-size: .95rem; color: var(--ink-2); }
+.fb-ans b { font: 600 1.1rem/1.2 var(--f-ui); color: var(--ink); }
+.fb-hint { font-size: .86rem; color: var(--ink-2); }
+
+/* ---------- Ergebnis ---------- */
+.result { background: var(--surface); border-radius: 20px; padding: 26px 20px 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow); }
+.result h2 { margin: 0; font: 600 1.6rem/1.1 var(--f-ui); letter-spacing: -0.03em; }
+.result-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.result-nums div { display: flex; flex-direction: column; gap: 4px; }
+.result-nums b { font: 600 2.2rem/1 var(--f-ui); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 8px; }
+.result-nums b small { font-size: 1rem; color: var(--ink-3); letter-spacing: 0; font-weight: 500; }
+.result-nums span { font-size: .8rem; color: var(--ink-3); }
+.result-nums .coin { width: .8em; height: .8em; }
+.bonus { display: flex; align-items: center; gap: 12px; background: var(--brass-soft); color: var(--brass-ink); border-radius: 12px; padding: 12px 14px; font-size: .9rem; }
+.bonus .coin { width: 22px; height: 22px; }
+.miss { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.miss-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.miss-row .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.miss-row b { font: 600 1rem/1.2 var(--f-ui); }
+.miss-row span { font-size: .86rem; color: var(--ink-2); }
+.btn-col { display: flex; flex-direction: column; gap: 8px; }
+
+/* ---------- Los ---------- */
+.play { display: flex; flex-direction: column; padding: 0 16px 12px; gap: 12px; }
+.stage { flex: 1; min-height: 0; container-type: size; display: grid; place-items: center; }
+.ticket {
+  --tw: min(100cqw, 100cqh * 0.70, 400px);
+  --r: var(--r-gewoehnlich);
+  width: var(--tw); font-size: calc(var(--tw) * 0.042);
+  position: relative; background: var(--surface); border-radius: 1.1em; padding: 1em 1em .4em;
+  box-shadow: var(--shadow), 0 0 0 1px var(--line);
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+.t-head { display: flex; justify-content: space-between; align-items: center; height: 1.2em; margin-bottom: .9em; color: var(--ink); }
+.t-brand { font: 600 .82em/1 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; }
+.t-no { font: 400 .78em/1 var(--f-mono); color: var(--ink-3); }
+.t-no b { font-weight: 500; color: var(--ink-2); }
+.t-window { position: relative; aspect-ratio: 1; width: 100%; border-radius: .7em; overflow: hidden; isolation: isolate; }
+.prize { position: absolute; inset: 0; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 46%, #FFFFFF 0%, color-mix(in srgb, var(--r) 7%, #FAFAF8) 45%, color-mix(in srgb, var(--r) 20%, #F1F1EE) 100%); }
+.prize .rays { position: absolute; inset: -30%; background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--r) 12%, transparent) 0deg 6deg, transparent 6deg 18deg); opacity: .5; }
+.ticket[data-rarity="mythisch"] .prize { background: radial-gradient(circle at 50% 45%, #42388C 0%, #201A4E 50%, #0F0C28 100%); }
+.sticker { position: absolute; inset: 0; margin: auto; display: block; width: 74%; height: 74%; object-fit: contain;
+  filter: drop-shadow(0 .25em .35em rgba(20,20,25,.18)) drop-shadow(0 .8em 1em rgba(20,20,25,.12)); -webkit-user-drag: none; pointer-events: none; }
+.foil { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 2; touch-action: none; cursor: grab;
+  transition: opacity .55s ease, transform .6s cubic-bezier(.2,.8,.2,1), filter .55s ease; }
+.foil:active { cursor: grabbing; }
+.foil.gone { opacity: 0; transform: scale(1.06); filter: blur(3px) brightness(1.3); pointer-events: none; }
+.foil.instant { transition: none; }
+.fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+.flash { position: absolute; inset: -20%; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.9) 50%, transparent 65%); }
+.t-perf { position: relative; height: 1.2em; margin: 0 -1em; }
+.t-perf::before { content: ""; position: absolute; left: 1.2em; right: 1.2em; top: 50%; border-top: 1px dashed var(--line-2); }
+.t-perf::after { content: ""; position: absolute; inset: 0;
+  background: radial-gradient(circle at 0 50%, var(--bg) .5em, transparent .54em), radial-gradient(circle at 100% 50%, var(--bg) .5em, transparent .54em); }
+.t-plate { height: 4.9em; display: flex; flex-direction: column; justify-content: center; gap: .3em; padding: 0 .1em; overflow: hidden; }
+.plate-pre .big { font: 600 1.3em/1.15 var(--f-ui); letter-spacing: -0.02em; }
+.plate-pre .small { font-size: .82em; color: var(--ink-2); display: flex; align-items: center; gap: .3em; flex-wrap: wrap; }
+.plate-post { display: flex; flex-direction: column; gap: .3em; }
+.plate-row { display: flex; align-items: center; justify-content: space-between; gap: .6em; min-width: 0; }
+.plate-name { font: 600 1.45em/1.1 var(--f-ui); letter-spacing: -0.025em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.plate-value { font: 500 1em/1 var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.plate-status { font-size: .8em; color: var(--ink-3); }
+.plate-status.is-new { color: var(--brass-ink); font-weight: 600; }
+.plate-in { animation: rise .45s cubic-bezier(.2,.8,.2,1) both; }
+
+.ticket.gold { background: linear-gradient(165deg, #FFFCF4, #FBF1DC); box-shadow: var(--shadow), 0 0 0 1px #E2C27E; }
+.ticket.gold .t-head { color: #6E4C0E; }
+.ticket.gold .t-no, .ticket.gold .t-no b { color: #9A7533; }
+.ticket.gold .plate-pre .big, .ticket.gold .plate-name, .ticket.gold .plate-value { color: #2A1E08; }
+.ticket.gold .plate-pre .small, .ticket.gold .plate-status { color: #7A6338; }
+.ticket.gold .t-perf::before { border-color: #E2C27E; }
+.ticket.gold .foil:not(.gone) { filter: sepia(.9) saturate(2.1) hue-rotate(-8deg) brightness(1.03); }
+
+.pill { --r: var(--r-gewoehnlich); display: inline-flex; align-items: center; gap: .45em; font: 500 .74em/1 var(--f-ui); color: var(--ink-2); white-space: nowrap; }
+.pill::before { content: ""; width: .6em; height: .6em; border-radius: 50%; background: var(--r); flex: none; }
+.ticket.gold .pill { color: #6E5524; }
+[data-rarity="gewoehnlich"] { --r: var(--r-gewoehnlich); }
+[data-rarity="ungewoehnlich"] { --r: var(--r-ungewoehnlich); }
+[data-rarity="selten"] { --r: var(--r-selten); }
+[data-rarity="episch"] { --r: var(--r-episch); }
+[data-rarity="legendaer"] { --r: var(--r-legendaer); }
+[data-rarity="mythisch"] { --r: var(--r-mythisch); }
+.pill[data-rarity="mythisch"]::before { background: conic-gradient(#1FA3A8, #8150C4, #C9861A, #1FA3A8); }
+
+.actions { flex: none; display: flex; flex-direction: column; align-items: center; }
+.btn-next { width: 100%; max-width: 400px; height: 52px; border: 0; border-radius: 12px; background: var(--field); color: var(--ink-3); font: 600 1rem/1 var(--f-ui); }
+.buy { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; }
+.buy-btn { height: 56px; border: 0; border-radius: 12px; background: var(--ink); color: var(--on-ink); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font: 600 1rem/1 var(--f-ui); transition: transform .12s ease; }
+.buy-btn small { display: inline-flex; align-items: center; gap: 5px; font: 500 .92rem/1 var(--f-mono); }
+.buy-btn:active:not(:disabled) { transform: scale(.985); }
+.buy-btn.gold { background: linear-gradient(120deg, #C89A45, #E6C77F 50%, #C08C33); color: #2A1E08; }
+.buy-btn.gold .coin circle:first-child { fill: #8A6420; }
+.buy-btn:disabled { opacity: .35; cursor: default; }
+
+/* ---------- Tabs ---------- */
+.tabs { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px 8px 6px; border-top: 1px solid var(--line); background: var(--bg); }
+.tab { border: 0; background: transparent; height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font: 500 .72rem/1 var(--f-ui); color: var(--ink-3); position: relative; }
+.tab svg { width: 22px; height: 22px; }
+.tab[aria-selected="true"] { color: var(--ink); }
+.tab .dot { position: absolute; top: 7px; left: calc(50% + 8px); width: 7px; height: 7px; border-radius: 50%; background: var(--flame); box-shadow: 0 0 0 2px var(--bg); }
+
+/* ---------- Museum ---------- */
+.m-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-top: 12px; }
+.m-head h1 { margin: 0; font: 600 2rem/1 var(--f-ui); letter-spacing: -0.04em; }
+.m-head p { margin: 6px 0 0; color: var(--ink-2); font-size: .9rem; }
+.m-actions { display: flex; gap: 6px; flex: none; }
+.icon-btn { height: 38px; padding: 0 12px; border-radius: 10px; border: 0; background: var(--field); display: inline-flex; align-items: center; gap: 6px; font: 500 .85rem/1 var(--f-ui); color: var(--ink); }
+.icon-btn svg { width: 16px; height: 16px; }
+.icon-btn.primary { background: var(--ink); color: var(--on-ink); }
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 12px; padding: 4px 0 2px; }
+.stat { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.stat-label { font-size: .78rem; color: var(--ink-3); }
+.stat-value { font: 600 1.5rem/1 var(--f-ui); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-value small { font: 500 .85rem/1 var(--f-ui); color: var(--ink-3); letter-spacing: 0; }
+.stat .bar { margin-top: 4px; }
+.sortbar { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+.sortbar::-webkit-scrollbar { display: none; }
+.sort { flex: none; border: 0; background: transparent; border-radius: 8px; height: 34px; padding: 0 12px; font: 500 .86rem/1 var(--f-ui); color: var(--ink-2); }
+.sort[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 24px 14px; }
+.item { --r: var(--r-gewoehnlich); border: 0; background: transparent; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 10px; position: relative; min-width: 0; }
+.item-art { aspect-ratio: 1; border-radius: 12px; display: grid; place-items: center; position: relative; overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #FFFFFF 0%, color-mix(in srgb, var(--r) 6%, #F6F6F4) 60%, color-mix(in srgb, var(--r) 14%, #EEEEEB) 100%); }
+.item-art img { position: absolute; inset: 0; margin: auto; width: 70%; height: 70%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(20,20,25,.16)); pointer-events: none; transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+@media (hover: hover) { .item:not(.unknown):hover .item-art img { transform: scale(1.05); } }
+.item-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 0 2px; }
+.item-nr { font: 400 .7rem/1 var(--f-mono); color: var(--ink-3); letter-spacing: .02em; }
+.item-name { font: 600 .98rem/1.2 var(--f-ui); letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item-foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 14px; }
+.item-foot .pill { font-size: 11px; }
+.item-value { font: 400 .76rem/1 var(--f-mono); color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.count { position: absolute; top: 8px; right: 8px; min-width: 26px; height: 22px; padding: 0 7px; border-radius: 6px; background: rgba(21,22,25,.82); color: #fff; font: 500 .72rem/22px var(--f-mono); text-align: center; }
+.item.unknown { cursor: default; }
+.item.unknown .item-art { background: var(--sunken); }
+.qmark { font: 500 1.6rem/1 var(--f-mono); color: var(--ink-3); opacity: .7; }
+.item.unknown .item-name { color: var(--ink-3); font-weight: 500; }
+.m-note { color: var(--ink-3); font-size: .82rem; text-align: center; margin: 4px 0 0; }
+
+/* ---------- Blätter ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(10,10,12,.42); z-index: 40; animation: fade .2s ease both; }
+@keyframes fade { from { opacity: 0; } }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; margin: 0 auto; max-width: 560px; max-height: 90%;
+  background: var(--bg); border-radius: 20px 20px 0 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: 10px 18px calc(24px + env(safe-area-inset-bottom, 0px)); animation: up .32s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes up { from { transform: translateY(30%); opacity: 0; } }
+.grab { width: 36px; height: 4px; border-radius: 4px; background: var(--line-2); margin: 0 auto 14px; }
+.sheet h2 { margin: 0; font: 600 1.45rem/1.15 var(--f-ui); letter-spacing: -0.03em; padding-right: 44px; }
+.sheet h3 { margin: 0; font: 600 1rem/1.2 var(--f-ui); }
+.sheet-close { position: absolute; z-index: 5; top: 12px; right: 14px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--field); display: grid; place-items: center; color: var(--ink-2); }
+.sheet-close svg { width: 14px; height: 14px; }
+.sheet .section { background: var(--surface); border-radius: 14px; padding: 16px; margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+.detail-art { --r: var(--r-gewoehnlich); aspect-ratio: 1.3; max-width: 100%; border-radius: 16px; display: grid; place-items: center; margin: 4px 0 16px; position: relative; overflow: hidden;
+  background: radial-gradient(circle at 50% 48%, #FFFFFF 0%, color-mix(in srgb, var(--r) 7%, #F7F7F5) 50%, color-mix(in srgb, var(--r) 18%, #EDEDEA) 100%); }
+.detail-art img { position: absolute; inset: 0; margin: auto; width: 62%; height: 78%; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(20,20,25,.18)); }
+.detail-art .rays { display: none; }
+.label-card { display: flex; flex-direction: column; gap: 6px; }
+.label-card .pill { font-size: .85rem; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border-radius: 12px; overflow: hidden; margin-top: 16px; }
+.fact { background: var(--surface); padding: 11px 13px; display: flex; flex-direction: column; gap: 4px; }
+.fact span { font-size: .74rem; color: var(--ink-3); }
+.fact b { font: 500 .92rem/1.2 var(--f-mono); font-variant-numeric: tabular-nums; }
+.confirm { border-radius: 12px; background: var(--bad-soft); padding: 14px; display: flex; flex-direction: column; gap: 10px; color: var(--bad); font-size: .9rem; font-weight: 500; }
+.notice { border-radius: 12px; background: var(--field); padding: 12px 14px; font-size: .86rem; color: var(--ink-2); }
+.toast { position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 60;
+  background: var(--ink); color: var(--on-ink); padding: 11px 16px; border-radius: 10px; font-weight: 500; font-size: .9rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25); max-width: calc(100% - 32px); text-align: center; animation: fade .2s ease both; }
+
+/* Wortliste */
+.wl-theme { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+.wl-theme h3 { display: flex; justify-content: space-between; align-items: baseline; }
+.wl-theme h3 small { font: 400 .78rem/1 var(--f-mono); color: var(--ink-3); }
+.wl { background: var(--surface); border-radius: 12px; overflow: hidden; }
+.wl-row { display: flex; align-items: center; gap: 12px; padding: 11px 14px; width: 100%; background: none; border: 0; text-align: left; font-size: .93rem; }
+.wl-row + .wl-row { border-top: 1px solid var(--line); }
+.wl-row .fr { font-weight: 600; flex: 1; min-width: 0; }
+.wl-row .de { color: var(--ink-2); flex: 1; min-width: 0; text-align: right; }
+.wl-row.locked .fr, .wl-row.locked .de { color: var(--ink-3); font-weight: 400; }
+.boxdots { display: inline-flex; gap: 2px; flex: none; }
+.boxdots i { width: 5px; height: 5px; border-radius: 50%; background: var(--sunken); }
+.boxdots i.on { background: var(--brass); }
+.boxdots.master i { background: var(--ok); }
+.del { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--field); display: grid; place-items: center; flex: none; color: var(--ink-2); }
+.del svg { width: 12px; height: 12px; }
+
+/* Kuratieren */
+.drop { position: relative; display: grid; place-items: center; aspect-ratio: 1.5; max-width: 100%; border-radius: 14px; cursor: pointer; overflow: hidden;
+  background: var(--field); box-shadow: inset 0 0 0 1.5px var(--line-2); transition: box-shadow .15s ease; }
+.drop.over { box-shadow: inset 0 0 0 2px var(--ink); }
+.drop.has { background-color: #fff; background-image: conic-gradient(#EEE 25%, #FFF 0 50%, #EEE 0 75%, #FFF 0); background-size: 18px 18px; box-shadow: inset 0 0 0 1px var(--line); }
+.drop img { position: absolute; inset: 0; margin: auto; max-width: 78%; max-height: 82%; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(20,20,25,.16)); }
+.drop-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--ink-2); font-size: .9rem; text-align: center; padding: 16px; }
+.drop-empty svg { width: 28px; height: 28px; color: var(--ink-3); }
+.check { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--ink); cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--ink); margin: 0; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.seg button { --r: var(--r-gewoehnlich); height: 40px; border: 0; border-radius: 10px; background: var(--field); display: flex; align-items: center; justify-content: center; gap: 7px; font: 500 .85rem/1 var(--f-ui); color: var(--ink-2); }
+.seg button::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--r); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.cur-list { display: flex; flex-direction: column; }
+.cur-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+.cur-row + .cur-row { border-top: 1px solid var(--line); }
+.cur-thumb { --r: var(--r-gewoehnlich); width: 48px; height: 48px; border-radius: 10px; flex: none; position: relative; overflow: hidden;
+  background: radial-gradient(circle, #fff 0%, color-mix(in srgb, var(--r) 14%, #F0F0EE) 100%); }
+.cur-thumb img { position: absolute; inset: 0; margin: auto; width: 80%; height: 80%; object-fit: contain; }
+.cur-row .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.cur-row b { font-weight: 600; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cur-row .meta { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--ink-3); }
+.cur-row .meta .pill { font-size: 12px; }
+.odds { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.odds td, .odds th { padding: 7px 0; border-bottom: 1px solid var(--line); text-align: left; }
+.odds th { font: 500 .74rem/1 var(--f-ui); color: var(--ink-3); }
+.odds td:nth-child(n+2), .odds th:nth-child(n+2) { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+@media (max-width: 380px) { .chip .wide { display: none; } .goals { grid-template-columns: 1fr; } }
+@media (max-height: 640px) { .topbar { height: 44px; } .buy-btn { height: 50px; } .tab { height: 46px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; } }
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}</style>
+</head>
+<body>
+<div class="app" id="app">
+  <section class="view learn scroll" id="view-learn" aria-label="Lernen">
+    <div class="pane">
+      <header class="topbar">
+        <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="var(--ink)"/><rect x="6" y="8.5" width="12" height="7" rx="1.6" fill="var(--bg)" opacity=".9"/><path d="M7.5 13.6c1.6-2 2.8.6 4.4-1.4s2.4 0 4-1.2" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg>Rubbelmuseum</div>
+        <div class="chips">
+          <span class="chip chip-streak" id="chip-streak" title="Tage in Folge"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10.6 1.8c.4 3-1.6 4.4-3 6.1C6.3 9.4 5 11 5 13.3 5 16.2 7.3 18.5 10 18.5s5-2.2 5-5.1c0-2.4-1.3-3.9-2.2-4.9.1 1.4-.4 2.6-1.4 3.2.5-3.6-.3-6.9-.8-9.9z" fill="var(--flame)"/></svg><b id="streak-val">0</b></span>
+          <span class="chip chip-coins" title="Münzen"><svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="var(--brass)"/><circle cx="10" cy="10" r="5.7" fill="none" stroke="var(--coin-line)" stroke-width="1.3" opacity=".75"/></svg><b class="coin-val">0</b></span>
+        </div>
+      </header>
+      <div id="learn-body" style="display:flex;flex-direction:column;gap:20px"></div>
+    </div>
+  </section>
+
+  <section class="view play" id="view-play" hidden aria-label="Los rubbeln">
+    <header class="topbar">
+      <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="var(--ink)"/><rect x="6" y="8.5" width="12" height="7" rx="1.6" fill="var(--bg)" opacity=".9"/><path d="M7.5 13.6c1.6-2 2.8.6 4.4-1.4s2.4 0 4-1.2" stroke="var(--ink)" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg>Rubbelmuseum</div>
+      <div class="chips">
+        <span class="chip" id="chip-progress"><b>0</b><span class="muted">/0</span></span>
+        <span class="chip chip-coins" title="Münzen"><svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="var(--brass)"/><circle cx="10" cy="10" r="5.7" fill="none" stroke="var(--coin-line)" stroke-width="1.3" opacity=".75"/></svg><b class="coin-val">0</b></span>
+      </div>
+    </header>
+
+    <div class="stage" id="stage">
+      <div class="ticket" id="ticket" data-rarity="gewoehnlich">
+        <div class="t-head"><span class="t-brand">Rubbelmuseum</span><span class="t-no">Nº <b id="ticket-no">000001</b></span></div>
+        <div class="t-window" id="window">
+          <div class="prize" id="prize" style="visibility:hidden"><div class="rays"></div><img class="sticker" id="sticker" alt="" draggable="false"></div>
+          <canvas class="foil" id="foil" width="600" height="600" aria-label="Silberne Rubbelfläche. Mit dem Finger freirubbeln."></canvas>
+          <div class="fx" id="fx"></div>
+        </div>
+        <div class="t-perf" aria-hidden="true"></div>
+        <div class="t-plate" aria-live="polite">
+          <div class="plate-pre" id="plate-pre">
+            <div class="big" id="pre-big">Rubbel das Feld frei</div>
+            <div class="small" id="pre-small">Der Fund kommt direkt ins Museum</div>
+          </div>
+          <div class="plate-post" id="plate-post" hidden>
+            <div class="plate-row"><span class="pill" id="res-pill">Gewöhnlich</span><span class="plate-status" id="res-status"></span></div>
+            <div class="plate-row"><span class="plate-name" id="res-name"></span><span class="plate-value" id="res-value"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-next" id="btn-next" disabled><span id="btn-next-label">Erst freirubbeln</span></button>
+      <div class="buy" id="buy" hidden>
+        <button class="buy-btn" id="buy-normal"><span>Los</span><small><svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="var(--brass)"/><circle cx="10" cy="10" r="5.7" fill="none" stroke="var(--coin-line)" stroke-width="1.3" opacity=".75"/></svg>3</small></button>
+        <button class="buy-btn gold" id="buy-gold"><span>Goldlos</span><small><svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="var(--brass)"/><circle cx="10" cy="10" r="5.7" fill="none" stroke="#FFE7B3" stroke-width="1.3" opacity=".75"/></svg>10</small></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view museum scroll" id="view-museum" hidden aria-label="Museum">
+    <div class="pane">
+      <div class="m-head">
+        <div>
+          <h1>Museum</h1>
+          <p id="m-sub">Jeder Fund bekommt hier seine Vitrine.</p>
+        </div>
+        <div class="m-actions">
+          <button class="icon-btn" id="btn-backup" aria-label="Spielstand sichern">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="sortbar" role="group" aria-label="Sortieren">
+        <button class="sort" data-sort="neu">Zuletzt entdeckt</button>
+        <button class="sort" data-sort="wert">Wert</button>
+        <button class="sort" data-sort="selten">Seltenheit</button>
+        <button class="sort" data-sort="name">Name</button>
+      </div>
+      <div class="grid" id="grid"></div>
+      <p class="m-note" id="m-note"></p>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-learn" aria-selected="true" aria-controls="view-learn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5c2.8-1 5.6-1 8.5.8v13c-2.9-1.8-5.7-1.8-8.5-.8zM20.5 5.5c-2.8-1-5.6-1-8.5.8v13c2.9-1.8 5.7-1.8 8.5-.8z"/></svg>
+      Lernen
+    </button>
+    <button class="tab" role="tab" id="tab-play" aria-selected="false" aria-controls="view-play">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2.2a2.8 2.8 0 0 0 0 5.6V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2.2a2.8 2.8 0 0 0 0-5.6z"/><path d="M14.5 5.5v13" stroke-dasharray="1.6 2.2"/></svg>
+      Los
+      <span class="dot" id="play-dot" hidden></span>
+    </button>
+    <button class="tab" role="tab" id="tab-museum" aria-selected="false" aria-controls="view-museum">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 4l9 5.5M5.5 10v8M9.8 10v8M14.2 10v8M18.5 10v8M3 20.5h18"/></svg>
+      Museum
+      <span class="dot" id="museum-dot" hidden></span>
+    </button>
+  </nav>
+</div>
+
+<div id="sheet-root"></div>
+<input type="file" id="file-in" accept="application/json,.json,.txt">
+
+
+<script>
+(() => {
+"use strict";
+
+/* ---------------- Seltenheiten ---------------- */
+const RARITIES = [
+  { id: "gewoehnlich",   name: "Gewöhnlich",   chance: 50 },
+  { id: "ungewoehnlich", name: "Ungewöhnlich", chance: 28 },
+  { id: "selten",        name: "Selten",       chance: 15 },
+  { id: "episch",        name: "Episch",       chance: 5 },
+  { id: "legendaer",     name: "Legendär",     chance: 1.8 },
+  { id: "mythisch",      name: "Mythisch",     chance: 0.2, priceless: true }
+];
+const RANK = Object.fromEntries(RARITIES.map((r, i) => [r.id, i]));
+const RBY = Object.fromEntries(RARITIES.map(r => [r.id, r]));
+
+// Fundstücke kommen aus katalog.json (wird beim Veröffentlichen aus dem Ordner „fundstuecke“ erzeugt)
+let CATALOG = [];
+let BY_ID = {};
+function setCatalog(list) {
+  CATALOG = (list || []).filter(it => it && it.id && it.name && RBY[it.rarity]).map(it => ({
+    id: String(it.id), nr: Math.max(0, Math.floor(Number(it.nr) || 0)), name: String(it.name),
+    rarity: it.rarity, value: Math.max(0, Number(it.value) || 0), text: String(it.text || ""), image: String(it.image || "")
+  }));
+  BY_ID = Object.fromEntries(CATALOG.map(it => [it.id, it]));
+}
+// Bildpfade relativ zur App auflösen (Pages CMS speichert sie teils mit führendem „/“)
+const imgSrc = it => !it.image ? "" : /^(https?:|data:)/.test(it.image) ? it.image : it.image.replace(/^\/+/, "");
+const isPriceless = it => !!RBY[it.rarity].priceless;
+
+/* ---------------- Formatierung ---------------- */
+const fmtInt = new Intl.NumberFormat("de-DE");
+const fmtCompact = new Intl.NumberFormat("de-DE", { notation: "compact", compactDisplay: "short", maximumFractionDigits: 1 });
+function fmtEur(v) {
+  if (v >= 1e6) return fmtCompact.format(v) + " €";
+  return fmtInt.format(Math.round(v)) + " €";
+}
+const valueLabel = it => isPriceless(it) ? "∞ · Unbezahlbar" : fmtEur(it.value);
+const fmtDate = ts => new Date(ts).toLocaleDateString("de-DE", { day: "numeric", month: "short", year: "numeric" });
+const pad6 = n => String(n).padStart(6, "0");
+
+/* ---------------- Spielstand (getrennt vom Katalog) ---------------- */
+const SAVE_KEY = "rubbelmuseum.save";
+const PREF_KEY = "rubbelmuseum.prefs";
+function blankSave() {
+  return { schema: 2, created: Date.now(), seq: 0, items: {}, current: null,
+    coins: 0, learn: { w: {}, custom: [] }, streak: { count: 0, last: -9 }, daily: { day: -9, done: false, practice: false, ok: 0, earned: 0 }, round: null };
+}
+const num = (v, d = 0) => (typeof v === "number" && isFinite(v)) ? v : d;
+
+function normalizeSave(raw) {
+  if (!raw || typeof raw !== "object" || typeof raw.items !== "object" || raw.items === null) return null;
+  const s = blankSave();
+  s.created = Number(raw.created) || Date.now();
+  s.seq = Math.max(0, Math.floor(Number(raw.seq) || 0));
+  for (const [id, e] of Object.entries(raw.items)) {
+    const n = Math.floor(Number(e && e.n));
+    if (!id || !(n > 0)) continue;
+    // Unbekannte IDs (z. B. aus neueren Katalogen) bleiben erhalten.
+    s.items[id] = { n, first: Number(e.first) || Date.now(), last: Number(e.last) || Number(e.first) || Date.now() };
+  }
+  const c = raw.current;
+  if (c && typeof c.itemId === "string") s.current = { seq: Number(c.seq) || s.seq, itemId: c.itemId, saved: !!c.saved, isNew: !!c.isNew, gold: !!c.gold };
+  // Lernen (ab Schema 2)
+  s.coins = Math.max(0, Math.round(num(raw.coins) * 100) / 100);
+  s.updated = num(raw.updated);
+  const L = raw.learn || {};
+  if (L.w && typeof L.w === "object") for (const [id, st] of Object.entries(L.w)) {
+    if (!st || typeof st !== "object") continue;
+    s.learn.w[id] = { b: Math.max(0, Math.min(5, Math.floor(num(st.b)))), due: num(st.due), last: num(st.last, -9), lastBad: num(st.lastBad, -9), intro: num(st.intro), ok: num(st.ok), bad: num(st.bad) };
+  }
+  if (Array.isArray(L.custom)) s.learn.custom = L.custom.filter(c => c && typeof c.id === "string" && typeof c.fr === "string" && typeof c.de === "string").map(c => ({ id: c.id, fr: c.fr, de: c.de }));
+  if (raw.streak) s.streak = { count: Math.max(0, Math.floor(num(raw.streak.count))), last: num(raw.streak.last, -9) };
+  if (raw.daily) s.daily = { day: num(raw.daily.day, -9), done: !!raw.daily.done, practice: !!raw.daily.practice, ok: num(raw.daily.ok), earned: num(raw.daily.earned) };
+  const r = raw.round;
+  if (r && Array.isArray(r.qs) && r.qs.length && Array.isArray(r.ans)) s.round = r;
+  return s;
+}
+
+let storageOk = true;
+function loadSave() {
+  try {
+    const txt = localStorage.getItem(SAVE_KEY);
+    if (txt) { const s = normalizeSave(JSON.parse(txt)); if (s) return s; }
+  } catch (e) { storageOk = false; }
+  return blankSave();
+}
+let warned = false;
+function persist() {
+  save.updated = Date.now();
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); storageOk = true; }
+  catch (e) { storageOk = false; if (!warned) { warned = true; toast("Speichern ist in diesem Browser gerade nicht möglich."); } }
+}
+function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREF_KEY)) || {}; } catch (e) { return {}; } }
+function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (e) {} }
+
+let save = loadSave();
+let catalogReady = false;
+// Lokal sichern, ohne den Stand als „neuer“ zu markieren (beim Verlassen der Seite)
+function persistLocal() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
+const prefs = Object.assign({ sort: "neu" }, loadPrefs());
+try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+
+/* ---------------- Ziehung ---------------- */
+function rand() {
+  try { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] / 4294967296; } catch (e) { return Math.random(); }
+}
+function pickWeighted(list, w) {
+  const total = list.reduce((s, x) => s + w(x), 0);
+  let r = rand() * total;
+  for (const x of list) { r -= w(x); if (r < 0) return x; }
+  return list[list.length - 1];
+}
+// Goldlos: nie Gewöhnlich, doppelte Chance auf Selten und besser
+const tierWeight = (r, gold) => r.chance * (gold && RANK[r.id] >= 2 ? 2 : 1);
+function drawTiers(gold) {
+  let tiers = RARITIES.filter(r => CATALOG.some(it => it.rarity === r.id));
+  if (gold) { const t2 = tiers.filter(r => RANK[r.id] >= 1); if (t2.length) tiers = t2; }
+  return tiers;
+}
+function drawItem(gold) {
+  // 1. Stufe nach fester Chance ziehen (leere Stufen fallen weg, bis Objekte existieren)
+  const tiers = drawTiers(gold);
+  const tier = pickWeighted(tiers, r => tierWeight(r, gold));
+  // 2. Objekt innerhalb der Stufe: teurere Objekte seltener
+  const pool = CATALOG.filter(it => it.rarity === tier.id);
+  return pickWeighted(pool, it => tier.priceless ? 1 : 1 / Math.sqrt(Math.max(1, it.value)));
+}
+
+/* ---------------- Rubbelschicht ---------------- */
+const SIZE = 600, BRUSH = 54, GRID = 60, CELL = SIZE / GRID, THRESHOLD = 0.65;
+const $ = id => document.getElementById(id);
+const foil = $("foil"), dctx = foil.getContext("2d");
+const maskC = document.createElement("canvas"); maskC.width = maskC.height = SIZE;
+const mctx = maskC.getContext("2d");
+const silverC = document.createElement("canvas"); silverC.width = silverC.height = SIZE;
+const covered = new Uint8Array(GRID * GRID);
+let clearedCells = 0;
+
+function buildSilver() {
+  const c = silverC.getContext("2d");
+  const g = c.createLinearGradient(0, 0, SIZE, SIZE);
+  g.addColorStop(0, "#B4B8BF"); g.addColorStop(.18, "#E4E6E9"); g.addColorStop(.38, "#BEC2C8");
+  g.addColorStop(.55, "#F1F2F4"); g.addColorStop(.74, "#AEB3BA"); g.addColorStop(1, "#D3D6DA");
+  c.fillStyle = g; c.fillRect(0, 0, SIZE, SIZE);
+  // gebürstete Streifen
+  for (let i = 0; i < 1400; i++) {
+    const y = rand() * SIZE, x = rand() * SIZE, len = 40 + rand() * 220;
+    c.strokeStyle = rand() < .5 ? `rgba(255,255,255,${.05 + rand() * .09})` : `rgba(60,64,72,${.03 + rand() * .05})`;
+    c.lineWidth = .6 + rand() * .9;
+    c.beginPath(); c.moveTo(x, y); c.lineTo(x + len, y + len * .05); c.stroke();
+  }
+  // Prägemuster
+  c.save();
+  c.translate(SIZE / 2, SIZE / 2); c.rotate(-0.36);
+  c.font = "800 21px 'Bricolage Grotesque', 'Avenir Next', system-ui, sans-serif";
+  c.textAlign = "center"; c.textBaseline = "middle";
+  const word = "RUBBELMUSEUM  ✦  ";
+  for (let row = -9; row <= 9; row++) {
+    const y = row * 46, off = (row % 2) * 90;
+    const line = word.repeat(6);
+    c.fillStyle = "rgba(255,255,255,.55)"; c.fillText(line, off - 1, y - 1);
+    c.fillStyle = "rgba(70,74,82,.16)"; c.fillText(line, off + 1, y + 1);
+  }
+  c.restore();
+  // Münze in der Mitte
+  const cx = SIZE / 2, cy = SIZE / 2;
+  c.lineWidth = 7;
+  c.strokeStyle = "rgba(255,255,255,.7)"; c.beginPath(); c.arc(cx - 1.5, cy - 1.5, 74, 0, Math.PI * 2); c.stroke();
+  c.strokeStyle = "rgba(70,74,82,.22)"; c.beginPath(); c.arc(cx + 1.5, cy + 1.5, 74, 0, Math.PI * 2); c.stroke();
+  c.font = "800 92px 'Bricolage Grotesque', 'Avenir Next', system-ui, sans-serif";
+  c.fillStyle = "rgba(255,255,255,.75)"; c.fillText("?", cx - 2, cy + 2);
+  c.fillStyle = "rgba(70,74,82,.26)"; c.fillText("?", cx + 2, cy + 6);
+  // Körnung
+  const img = c.getImageData(0, 0, SIZE, SIZE), d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const n = (rand() - .5) * 34 + ((rand() < .015) ? 40 : 0);
+    d[i] += n; d[i + 1] += n; d[i + 2] += n + 1.5;
+  }
+  c.putImageData(img, 0, 0);
+  // Randvignette
+  const v = c.createRadialGradient(cx, cy, SIZE * .35, cx, cy, SIZE * .75);
+  v.addColorStop(0, "rgba(0,0,0,0)"); v.addColorStop(1, "rgba(40,44,52,.18)");
+  c.fillStyle = v; c.fillRect(0, 0, SIZE, SIZE);
+}
+
+let sheenStart = -1, light = null, raf = 0;
+const SHEEN_MS = 1150;
+function render(now) {
+  dctx.globalCompositeOperation = "copy";
+  dctx.drawImage(maskC, 0, 0);
+  dctx.globalCompositeOperation = "source-in";
+  dctx.drawImage(silverC, 0, 0);
+  dctx.globalCompositeOperation = "source-atop";
+  if (sheenStart >= 0) {
+    const p = -0.25 + ((now - sheenStart) / SHEEN_MS) * 1.5;
+    const g = dctx.createLinearGradient(0, 0, SIZE, SIZE);
+    const st = (o, col) => { const t = p + o; if (t > 0 && t < 1) g.addColorStop(t, col); };
+    g.addColorStop(0, "rgba(255,255,255,0)");
+    st(-0.16, "rgba(255,255,255,0)"); st(-0.04, "rgba(255,255,255,.45)"); st(0, "rgba(255,255,255,.75)");
+    st(0.03, "rgba(200,225,255,.35)"); st(0.12, "rgba(255,255,255,0)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    dctx.fillStyle = g; dctx.fillRect(0, 0, SIZE, SIZE);
+  }
+  if (light) {
+    const r = dctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, 170);
+    r.addColorStop(0, "rgba(255,255,255,.32)"); r.addColorStop(1, "rgba(255,255,255,0)");
+    dctx.fillStyle = r; dctx.fillRect(0, 0, SIZE, SIZE);
+  }
+  dctx.globalCompositeOperation = "source-over";
+}
+function tick(now) {
+  raf = 0;
+  if (sheenStart >= 0 && now - sheenStart > SHEEN_MS) sheenStart = -1;
+  render(now);
+  if (sheenStart >= 0) schedule();
+}
+function schedule() { if (!raf) raf = requestAnimationFrame(tick); }
+
+function resetMask() {
+  mctx.globalCompositeOperation = "source-over";
+  mctx.fillStyle = "#000"; mctx.fillRect(0, 0, SIZE, SIZE);
+  covered.fill(0); clearedCells = 0; light = null;
+  render(performance.now());
+}
+
+function markCells(a, b, r) {
+  const minX = Math.max(0, Math.floor((Math.min(a.x, b.x) - r) / CELL)), maxX = Math.min(GRID - 1, Math.floor((Math.max(a.x, b.x) + r) / CELL));
+  const minY = Math.max(0, Math.floor((Math.min(a.y, b.y) - r) / CELL)), maxY = Math.min(GRID - 1, Math.floor((Math.max(a.y, b.y) + r) / CELL));
+  const dx = b.x - a.x, dy = b.y - a.y, len2 = dx * dx + dy * dy, r2 = r * r;
+  for (let gy = minY; gy <= maxY; gy++) for (let gx = minX; gx <= maxX; gx++) {
+    const i = gy * GRID + gx; if (covered[i]) continue;
+    const px = (gx + .5) * CELL, py = (gy + .5) * CELL;
+    let t = len2 ? ((px - a.x) * dx + (py - a.y) * dy) / len2 : 0; t = Math.max(0, Math.min(1, t));
+    const ex = a.x + t * dx - px, ey = a.y + t * dy - py;
+    if (ex * ex + ey * ey <= r2) { covered[i] = 1; clearedCells++; }
+  }
+}
+function scratch(a, b) {
+  mctx.globalCompositeOperation = "destination-out";
+  mctx.lineWidth = BRUSH; mctx.lineCap = "round"; mctx.lineJoin = "round";
+  mctx.beginPath(); mctx.moveTo(a.x, a.y); mctx.lineTo(b.x + (a.x === b.x && a.y === b.y ? .01 : 0), b.y); mctx.stroke();
+  markCells(a, b, BRUSH / 2);
+  light = b;
+  schedule();
+  if (clearedCells / (GRID * GRID) >= THRESHOLD) reveal();
+}
+
+/* ---------------- Eingabe: genau ein Finger / Maus ---------------- */
+let activePointer = null, lastPt = null;
+function toCanvas(e) {
+  const r = foil.getBoundingClientRect();
+  return { x: (e.clientX - r.left) / r.width * SIZE, y: (e.clientY - r.top) / r.height * SIZE };
+}
+foil.addEventListener("pointerdown", e => {
+  if (state !== "scratch" || activePointer !== null) return;
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+  e.preventDefault();
+  activePointer = e.pointerId;
+  try { foil.setPointerCapture(e.pointerId); } catch (err) {}
+  lastPt = toCanvas(e);
+  scratch(lastPt, lastPt);
+});
+foil.addEventListener("pointermove", e => {
+  if (e.pointerId !== activePointer || state !== "scratch") return;
+  e.preventDefault();
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+  for (const ev of (evs.length ? evs : [e])) {
+    if (state !== "scratch") break;
+    const p = toCanvas(ev);
+    scratch(lastPt, p); lastPt = p;
+  }
+});
+const endPointer = e => { if (e.pointerId === activePointer) { activePointer = null; lastPt = null; light = null; schedule(); } };
+foil.addEventListener("pointerup", endPointer);
+foil.addEventListener("pointercancel", endPointer);
+foil.addEventListener("lostpointercapture", endPointer);
+// iOS: Lupe, Kontextmenü und Pinch-Zoom auf dem Los verhindern
+const win = $("window");
+["touchstart", "touchmove"].forEach(t => win.addEventListener(t, e => { if (e.cancelable) e.preventDefault(); }, { passive: false }));
+document.addEventListener("gesturestart", e => e.preventDefault());
+win.addEventListener("contextmenu", e => e.preventDefault());
+
+/* ---------------- Runde ---------------- */
+let state = "idle"; // idle | scratch | revealed | dealing
+const ticketEl = $("ticket"), prizeEl = $("prize"), stickerEl = $("sticker"), fxEl = $("fx");
+const btnNext = $("btn-next"), btnLabel = $("btn-next-label");
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const COST = { normal: 3, gold: 10 };
+const canAfford = c => save.coins + 1e-9 >= c;
+function setButton() { updateActions(); }
+function updateActions() {
+  const buying = state === "idle" || state === "revealed";
+  btnNext.hidden = buying;
+  $("buy").hidden = !buying;
+  btnLabel.textContent = state === "dealing" ? "Los wird gemischt …" : "Erst freirubbeln";
+  $("buy-normal").disabled = !catalogReady || !canAfford(COST.normal);
+  $("buy-gold").disabled = !catalogReady || !canAfford(COST.gold);
+  if (state === "idle") updateIdlePlate();
+}
+function updateIdlePlate() {
+  $("plate-post").hidden = true; $("plate-pre").hidden = false;
+  if (!catalogReady) {
+    $("pre-big").textContent = "Sammlung wird geladen";
+    $("pre-small").textContent = "Einen Moment …";
+  } else if (canAfford(COST.normal)) {
+    $("pre-big").textContent = "Wähle ein Los";
+    $("pre-small").textContent = "Das Goldlos hat bessere Chancen auf seltene Funde.";
+  } else {
+    const miss = Math.max(0, COST.normal - save.coins);
+    $("pre-big").textContent = "Noch keine Münzen";
+    $("pre-small").innerHTML = `Dir fehlen ${fmtCoin(miss)} ${COIN_SVG} · <button class="link-btn" data-go="learn">Jetzt lernen</button>`;
+  }
+}
+
+function showPlatePre(gold) {
+  $("plate-post").hidden = true;
+  const pre = $("plate-pre"); pre.hidden = false;
+  $("pre-big").textContent = "Rubbel das Feld frei";
+  $("pre-small").textContent = gold ? "Goldlos: nie gewöhnlich, doppelte Chance auf Selten und besser" : "Der Fund kommt direkt ins Museum";
+}
+function showPlatePost(it, entry, isNew, animate) {
+  $("plate-pre").hidden = true;
+  const post = $("plate-post"); post.hidden = false;
+  const pill = $("res-pill"); pill.dataset.rarity = it.rarity; pill.textContent = RBY[it.rarity].name;
+  $("res-name").textContent = it.name;
+  $("res-value").textContent = valueLabel(it);
+  const st = $("res-status");
+  st.textContent = isNew ? "Neu im Museum" : `Jetzt ${entry ? entry.n : 1}× im Museum`;
+  st.classList.toggle("is-new", isNew);
+  if (animate && !reduceMotion) { post.classList.remove("plate-in"); void post.offsetWidth; post.classList.add("plate-in"); }
+}
+
+function loadSticker(it) {
+  return new Promise(res => {
+    stickerEl.onload = stickerEl.onerror = null;
+    const src = imgSrc(it);
+    if (stickerEl.getAttribute("src") === src && stickerEl.complete) return res();
+    stickerEl.onload = stickerEl.onerror = () => res();
+    stickerEl.src = src; stickerEl.alt = it.name;
+    if (stickerEl.decode) stickerEl.decode().then(res, res);
+  });
+}
+
+// Bereitet ein verdecktes Los vor. Das Motiv wird erst sichtbar, nachdem die Silberschicht vollständig gezeichnet ist.
+function setGold(gold) {
+  ticketEl.classList.toggle("gold", !!gold);
+  ticketEl.querySelector(".t-brand").textContent = gold ? "Goldlos" : "Rubbelmuseum";
+}
+async function prepareTicket(it, seq, revealed, gold) {
+  setGold(gold);
+  prizeEl.style.visibility = "hidden";
+  fxEl.textContent = "";
+  foil.classList.add("instant");
+  foil.classList.toggle("gone", !!revealed);
+  resetMask();
+  void foil.offsetWidth;
+  foil.classList.remove("instant");
+  ticketEl.dataset.rarity = gold ? "legendaer" : it.rarity;
+  $("ticket-no").textContent = pad6(seq);
+  await loadSticker(it);
+  ticketEl.dataset.rarity = it.rarity;
+  prizeEl.style.visibility = "visible";
+}
+// Leeres, verdecktes Los ohne Motiv (vor dem ersten Kauf)
+function showIdleTicket() {
+  state = "idle";
+  setGold(false);
+  prizeEl.style.visibility = "hidden";
+  fxEl.textContent = "";
+  foil.classList.add("instant"); foil.classList.remove("gone");
+  resetMask(); void foil.offsetWidth; foil.classList.remove("instant");
+  $("ticket-no").textContent = pad6(save.seq + 1);
+  updateActions();
+}
+
+async function startNewTicket(gold) {
+  if (state === "dealing" || state === "scratch") return;
+  const cost = gold ? COST.gold : COST.normal;
+  if (!catalogReady) return;
+  if (!canAfford(cost)) { toast("Nicht genug Münzen. Im Lernen-Tab verdienst du neue."); return; }
+  const prev = state;
+  state = "dealing";
+  addCoins(-cost);
+  setButton(false);
+  activePointer = null;
+  if (prev === "revealed" && !reduceMotion) {
+    await ticketEl.animate([{ transform: "none", opacity: 1 }, { transform: "translateX(-38%) rotate(-7deg)", opacity: 0 }],
+      { duration: 230, easing: "cubic-bezier(.5,0,.8,.4)", fill: "forwards" }).finished.catch(() => {});
+  }
+  const it = drawItem(gold);
+  save.seq += 1;
+  save.current = { seq: save.seq, itemId: it.id, saved: false, gold: !!gold };
+  persist(); // Los ist festgelegt — Neuladen zieht nicht neu
+  showPlatePre(gold);
+  await prepareTicket(it, save.seq, false, gold);
+  state = "scratch";
+  updateActions();
+  if (!reduceMotion) {
+    await ticketEl.animate([{ transform: "translateX(40%) rotate(6deg)", opacity: 0 }, { transform: "none", opacity: 1 }],
+      { duration: 380, easing: "cubic-bezier(.2,.9,.25,1.05)", fill: "forwards" }).finished.catch(() => {});
+    ticketEl.getAnimations().forEach(a => a.cancel());
+  }
+  setTimeout(() => { if (state === "scratch") { sheenStart = performance.now(); schedule(); } }, 250);
+}
+
+function commitFind() {
+  const cur = save.current;
+  if (!cur || cur.saved) return null; // genau einmal speichern
+  const now = Date.now();
+  const entry = save.items[cur.itemId] || (save.items[cur.itemId] = { n: 0, first: now, last: now });
+  cur.isNew = entry.n === 0;
+  entry.n += 1; entry.last = now;
+  cur.saved = true;
+  persist();
+  return entry;
+}
+
+function reveal() {
+  if (state !== "scratch") return;
+  state = "revealed";
+  activePointer = null; light = null; sheenStart = -1;
+  const it = BY_ID[save.current.itemId];
+  const entry = commitFind();
+  foil.classList.add("gone");
+  showPlatePost(it, entry, !!save.current.isNew, true);
+  celebrate(it);
+  setButton(true);
+  updateProgressChip();
+  if (save.current.isNew) $("museum-dot").hidden = false;
+  museumDirty = true;
+}
+
+function celebrate(it) {
+  if (reduceMotion) return;
+  const rank = RANK[it.rarity];
+  const flash = document.createElement("div"); flash.className = "flash"; fxEl.appendChild(flash);
+  flash.animate([{ transform: "translateX(-70%)", opacity: 1 }, { transform: "translateX(70%)", opacity: 0 }], { duration: 650, easing: "ease-out", fill: "forwards" });
+  stickerEl.animate([{ transform: "scale(.82)" }, { transform: "scale(1.08)", offset: .55 }, { transform: "scale(1)" }],
+    { duration: 620, easing: "cubic-bezier(.2,.8,.2,1)" });
+  const rays = prizeEl.querySelector(".rays");
+  rays.animate([{ transform: "rotate(0deg)", opacity: .2 }, { transform: "rotate(40deg)", opacity: .55 + rank * .08 }], { duration: 1600, easing: "ease-out" });
+  const n = [10, 14, 22, 30, 40, 48][rank];
+  const style = getComputedStyle(ticketEl);
+  const rc = style.getPropertyValue("--r").trim() || "#E6A23C";
+  const colors = rank >= 5 ? ["#23AEB4", "#8B4FCF", "#E6A23C", "#FFFFFF", "#9FE7E3"] : [rc, "#E6A23C", "#FFFFFF", rc];
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement("i");
+    const s = 5 + rand() * 7;
+    p.style.cssText = `position:absolute;left:50%;top:48%;width:${s}px;height:${s * (rand() < .5 ? 1 : 2.2)}px;border-radius:${rand() < .4 ? "50%" : "2px"};background:${colors[i % colors.length]};box-shadow:0 0 0 1px rgba(0,0,0,.04)`;
+    fxEl.appendChild(p);
+    const ang = rand() * Math.PI * 2, dist = 90 + rand() * (110 + rank * 30);
+    const dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist;
+    p.animate([
+      { transform: "translate(-50%,-50%) rotate(0deg) scale(.4)", opacity: 1 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 40}px)) rotate(${rand() * 540 - 270}deg) scale(1)`, opacity: 0 }
+    ], { duration: 900 + rand() * 600, easing: "cubic-bezier(.15,.7,.3,1)", fill: "forwards" });
+  }
+  setTimeout(() => { if (state === "revealed") fxEl.textContent = ""; }, 1700);
+}
+
+$("buy-normal").addEventListener("click", () => startNewTicket(false));
+$("buy-gold").addEventListener("click", () => startNewTicket(true));
+$("plate-pre").addEventListener("click", e => { if (e.target.closest("[data-go=learn]")) showView("learn"); });
+setInterval(() => {
+  if (state === "scratch" && activePointer === null && !document.hidden && sheenStart < 0 && currentView === "play") { sheenStart = performance.now(); schedule(); }
+}, 3600);
+
+function updateProgressChip() {
+  const found = CATALOG.filter(it => save.items[it.id]).length;
+  $("chip-progress").innerHTML = `<b>${found}</b><span class="muted">/${CATALOG.length}<span class="wide">&nbsp;entdeckt</span></span>`;
+}
+
+/* ---------------- Museum ---------------- */
+let museumDirty = true, currentView = "learn";
+function totals() {
+  let found = 0, finds = 0, value = 0, mythic = 0;
+  for (const it of CATALOG) {
+    const e = save.items[it.id]; if (!e) continue;
+    found++; finds += e.n;
+    if (isPriceless(it)) mythic += e.n; else value += it.value * e.n;
+  }
+  // Funde von Objekten, die (noch) nicht im Katalog stehen, zählen mit
+  for (const [id, e] of Object.entries(save.items)) if (!BY_ID[id]) finds += e.n;
+  return { found, finds, value, mythic };
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
+
+function renderMuseum() {
+  const t = totals();
+  const pct = CATALOG.length ? Math.round(t.found / CATALOG.length * 100) : 0;
+  $("stats").innerHTML = `
+    <div class="stat"><span class="stat-label">Entdeckt</span><span class="stat-value">${t.found} <small>/ ${CATALOG.length}</small></span><div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div class="stat"><span class="stat-label">Funde gesamt</span><span class="stat-value">${fmtInt.format(t.finds)}</span></div>
+    <div class="stat"><span class="stat-label">Sammlungswert</span><span class="stat-value">${fmtEur(t.value)}</span></div>
+    <div class="stat"><span class="stat-label">Mythische Funde</span><span class="stat-value">${t.mythic ? "∞ × " + t.mythic : "0"}</span></div>`;
+  $("m-sub").textContent = t.finds ? `${fmtInt.format(t.finds)} ${t.finds === 1 ? "Fundstück" : "Fundstücke"} in ${t.found} ${t.found === 1 ? "Vitrine" : "Vitrinen"}` : "Rubbel dein erstes Los, dann füllt sich die erste Vitrine.";
+
+  document.querySelectorAll(".sort").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sort === prefs.sort)));
+  const known = CATALOG.filter(it => save.items[it.id]);
+  const unknown = CATALOG.filter(it => !save.items[it.id]).sort((a, b) => a.nr - b.nr);
+  const val = it => isPriceless(it) ? Infinity : it.value;
+  const sorters = {
+    neu: (a, b) => save.items[b.id].last - save.items[a.id].last,
+    wert: (a, b) => val(b) - val(a) || a.name.localeCompare(b.name, "de"),
+    selten: (a, b) => RANK[b.rarity] - RANK[a.rarity] || val(b) - val(a),
+    name: (a, b) => a.name.localeCompare(b.name, "de")
+  };
+  known.sort(sorters[prefs.sort] || sorters.neu);
+  const nr = it => "Nr. " + String(it.nr || 0).padStart(3, "0");
+  $("grid").innerHTML = known.map(it => {
+    const e = save.items[it.id];
+    return `<button class="item" data-rarity="${it.rarity}" data-id="${esc(it.id)}" aria-label="${esc(it.name)}, ${RBY[it.rarity].name}, ${e.n} Stück">
+      <div class="item-art"><img src="${esc(imgSrc(it))}" alt="" loading="lazy" draggable="false">${e.n > 1 ? `<span class="count">×${e.n}</span>` : ""}</div>
+      <div class="item-body"><span class="item-nr">${nr(it)}</span><span class="item-name">${esc(it.name)}</span>
+      <div class="item-foot"><span class="pill" data-rarity="${it.rarity}">${RBY[it.rarity].name}</span><span class="item-value">${esc(valueLabel(it))}</span></div></div></button>`;
+  }).join("") + unknown.map(it => `<div class="item unknown" data-rarity="${it.rarity}" aria-label="Unbekanntes Objekt, ${RBY[it.rarity].name}">
+      <div class="item-art"><span class="qmark">?</span></div>
+      <div class="item-body"><span class="item-nr">${nr(it)}</span><span class="item-name">Noch nicht entdeckt</span>
+      <div class="item-foot"><span class="pill" data-rarity="${it.rarity}">${RBY[it.rarity].name}</span><span class="item-value"></span></div></div></div>`).join("");
+  const missing = unknown.length;
+  $("m-note").textContent = missing ? `Noch ${missing} ${missing === 1 ? "Vitrine" : "Vitrinen"} leer.` : "Alle Vitrinen sind gefüllt.";
+  museumDirty = false;
+}
+document.querySelectorAll(".sort").forEach(b => b.addEventListener("click", () => { prefs.sort = b.dataset.sort; savePrefs(); renderMuseum(); }));
+$("grid").addEventListener("click", e => { const b = e.target.closest(".item[data-id]"); if (b) openDetail(b.dataset.id); });
+
+/* ---------------- Tabs ---------------- */
+function showView(v) {
+  currentView = v;
+  for (const k of ["learn", "play", "museum"]) {
+    $("view-" + k).hidden = v !== k;
+    $("tab-" + k).setAttribute("aria-selected", String(v === k));
+  }
+  if (v === "play") { $("play-dot").hidden = true; updateActions(); }
+  if (v === "learn") renderLearn();
+  if (v === "museum") { $("museum-dot").hidden = true; if (museumDirty) renderMuseum(); $("view-museum").scrollTop = 0; }
+}
+$("tab-play").addEventListener("click", () => showView("play"));
+$("tab-learn").addEventListener("click", () => showView("learn"));
+$("tab-museum").addEventListener("click", () => showView("museum"));
+
+/* ---------------- Sheets ---------------- */
+const closeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`;
+function openSheet(html, label) {
+  const root = $("sheet-root");
+  root.innerHTML = `<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(label)}"><div class="grab"></div><button class="sheet-close" data-close aria-label="Schließen">${closeIcon}</button>${html}</div>`;
+  root.querySelectorAll("[data-close]").forEach(el => el.addEventListener("click", closeSheet));
+  root.querySelector(".sheet-close").focus();
+  return root.querySelector(".sheet");
+}
+function closeSheet() { $("sheet-root").innerHTML = ""; }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+
+function openDetail(id) {
+  const it = BY_ID[id], e = save.items[id]; if (!it || !e) return;
+  const total = isPriceless(it) ? "∞" : fmtEur(it.value * e.n);
+  const sheet = openSheet(`
+    <div class="detail-art" data-rarity="${it.rarity}"><img src="${esc(imgSrc(it))}" alt="${esc(it.name)}"></div>
+    <div class="label-card">
+      <span class="pill" data-rarity="${it.rarity}">${RBY[it.rarity].name}</span>
+      <h2>${esc(it.name)}</h2>
+      ${it.text ? `<p>${esc(it.text)}</p>` : ""}
+    </div>
+    <div class="facts">
+      <div class="fact"><span>Wert pro Stück</span><b>${esc(valueLabel(it))}</b></div>
+      <div class="fact"><span>Im Museum</span><b>${e.n}×</b></div>
+      <div class="fact"><span>Gesamtwert</span><b>${total}</b></div>
+      <div class="fact"><span>Inventar</span><b>Nr. ${String(it.nr || 0).padStart(3, "0")}</b></div>
+      <div class="fact"><span>Erstfund</span><b>${fmtDate(e.first)}</b></div>
+      <div class="fact"><span>Zuletzt</span><b>${fmtDate(e.last)}</b></div>
+    </div>
+`, it.name);
+}
+
+/* ---------------- Sicherung ---------------- */
+function exportCode() {
+  const json = JSON.stringify({ app: "rubbelmuseum", schema: 2, exported: Date.now(), save });
+  return "RM1:" + btoa(unescape(encodeURIComponent(json)));
+}
+function parseBackup(text) {
+  text = String(text || "").trim();
+  if (!text) throw new Error("Es wurde kein Code eingefügt.");
+  let obj;
+  try {
+    if (text.startsWith("RM1:")) obj = JSON.parse(decodeURIComponent(escape(atob(text.slice(4).replace(/\s+/g, "")))));
+    else obj = JSON.parse(text);
+  } catch (e) { throw new Error("Das ist keine gültige Rubbelmuseum-Sicherung. Prüfe, ob der Code vollständig kopiert ist."); }
+  const s = normalizeSave(obj && obj.save ? obj.save : obj);
+  if (!s) throw new Error("Die Datei enthält keinen Spielstand.");
+  return s;
+}
+
+function openBackup() {
+  const t = totals();
+  const code = exportCode();
+  const sheet = openSheet(`
+    <h2>Sicherung</h2>
+    <p style="margin-top:6px">Dein Spielstand (Museum, Münzen, Streak und Lernfortschritt) liegt nur auf diesem Gerät, in diesem Browser. Mit einer Sicherung kannst du ihn aufbewahren oder auf ein anderes Gerät mitnehmen.</p>
+    <div class="section">
+      <h3>Sicherung erstellen</h3>
+      <p>${fmtInt.format(t.finds)} Funde · ${fmtCoin(save.coins)} Münzen · ${Object.keys(save.learn.w).length} Wörter gelernt · Stand ${fmtDate(Date.now())}</p>
+      <div class="row">
+        <button class="btn" id="bk-file">Datei sichern</button>
+        <button class="btn secondary" id="bk-copy">Code kopieren</button>
+      </div>
+      <textarea id="bk-code" class="code" readonly aria-label="Sicherungscode">${esc(code)}</textarea>
+    </div>
+    <div class="section">
+      <h3>Sicherung laden</h3>
+      <p>Datei wählen oder Sicherungscode einfügen. Der aktuelle Spielstand wird dabei ersetzt.</p>
+      <textarea id="bk-in" class="code" placeholder="RM1:…" aria-label="Sicherungscode einfügen"></textarea>
+      <div class="row">
+        <button class="btn secondary" id="bk-pick">Datei wählen</button>
+        <button class="btn" id="bk-load">Code laden</button>
+      </div>
+      <div id="bk-confirm"></div>
+    </div>`, "Sicherung");
+
+  sheet.querySelector("#bk-copy").addEventListener("click", () => {
+    const ta = sheet.querySelector("#bk-code");
+    const fallback = () => { ta.focus(); ta.select(); toast("Code markiert. Jetzt kopieren."); };
+    try { navigator.clipboard.writeText(code).then(() => toast("Sicherungscode kopiert"), fallback); } catch (e) { fallback(); }
+  });
+  sheet.querySelector("#bk-file").addEventListener("click", async () => {
+    const name = `rubbelmuseum-${new Date().toISOString().slice(0, 10)}.json`;
+    const json = JSON.stringify({ app: "rubbelmuseum", schema: 2, exported: Date.now(), save }, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    // Im Claude-Viewer: Download über die Plattform
+    try {
+      const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+      if (dl) {
+        try { await dl.save({ filename: name, data: json }); toast("Sicherung gespeichert"); }
+        catch (e) { if (!e || e.code !== "declined") toast("Datei geht hier nicht. Nutze „Code kopieren“."); }
+        return;
+      }
+    } catch (e) {}
+    try {
+      const file = new File([blob], name, { type: "application/json" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "Rubbelmuseum-Sicherung" }); return; }
+    } catch (e) { if (e && e.name === "AbortError") return; }
+    try {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast("Falls kein Download startet: „Code kopieren“ nutzen.");
+    } catch (e) { toast("Datei geht hier nicht. Nutze „Code kopieren“."); }
+  });
+
+  const confirmBox = sheet.querySelector("#bk-confirm");
+  const askReplace = s => {
+    const n = Object.values(s.items).reduce((a, e) => a + e.n, 0);
+    confirmBox.innerHTML = `<div class="confirm">Aktuellen Spielstand (${fmtInt.format(t.finds)} Funde) durch die Sicherung mit ${fmtInt.format(n)} Funden ersetzen?
+      <div class="row"><button class="btn danger" id="bk-yes">Ersetzen</button><button class="btn secondary" id="bk-no">Abbrechen</button></div></div>`;
+    confirmBox.querySelector("#bk-no").addEventListener("click", () => confirmBox.innerHTML = "");
+    confirmBox.querySelector("#bk-yes").addEventListener("click", () => {
+      save = s; persist(); closeSheet(); museumDirty = true; renderMuseum(); updateProgressChip(); updateCoinUI(); restoreRound(); renderLearn(); toast("Sicherung geladen");
+    });
+  };
+  const tryText = text => { try { askReplace(parseBackup(text)); } catch (e) { confirmBox.innerHTML = `<div class="confirm">${esc(e.message)}</div>`; } };
+  sheet.querySelector("#bk-load").addEventListener("click", () => tryText(sheet.querySelector("#bk-in").value));
+  sheet.querySelector("#bk-pick").addEventListener("click", () => {
+    const fi = $("file-in"); fi.value = "";
+    fi.onchange = () => { const f = fi.files && fi.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => tryText(rd.result); rd.readAsText(f); };
+    fi.click();
+  });
+}
+$("btn-backup").addEventListener("click", openBackup);
+
+let toastTimer = 0;
+function toast(msg) {
+  document.querySelectorAll(".toast").forEach(t => t.remove());
+  const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = msg;
+  document.body.appendChild(t); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), 2600);
+}
+
+/* =====================================================================
+   LERNEN — Französisch A1–A2
+   Wortschatz: je Zeile „französisch|deutsch“. Alternativen mit „ / “.
+   Text in Klammern ist nur Hinweis und wird beim Prüfen ignoriert.
+   Die Reihenfolge der Themen ist die Reihenfolge, in der neue Wörter kommen.
+   ===================================================================== */
+const VOCAB = [
+["Begrüßung", `bonjour|hallo / guten Tag
+salut|hallo / tschüss
+au revoir|auf Wiedersehen
+merci|danke
+s'il vous plaît|bitte
+oui|ja
+non|nein
+pardon|Entschuldigung
+bonsoir|guten Abend
+bonne nuit|gute Nacht
+à bientôt|bis bald
+de rien|gern geschehen / bitte sehr
+comment ça va ?|wie geht's?
+ça va bien|mir geht es gut / es geht gut
+enchanté|sehr erfreut
+madame|Frau (Anrede)
+monsieur|Herr (Anrede)`],
+["Familie", `la famille|die Familie
+la mère|die Mutter
+le père|der Vater
+les parents|die Eltern
+le frère|der Bruder
+la sœur|die Schwester
+le fils|der Sohn
+la fille|die Tochter / das Mädchen
+l'enfant|das Kind
+le garçon|der Junge
+le grand-père|der Großvater / der Opa
+la grand-mère|die Großmutter / die Oma
+l'oncle|der Onkel
+la tante|die Tante
+le mari|der Ehemann / der Mann
+la femme|die Frau / die Ehefrau
+le bébé|das Baby
+l'ami|der Freund
+l'amie|die Freundin`],
+["Essen & Trinken", `le pain|das Brot
+le fromage|der Käse
+la pomme|der Apfel
+l'eau|das Wasser
+le lait|die Milch
+le café|der Kaffee
+le thé|der Tee
+le vin|der Wein
+la bière|das Bier
+la viande|das Fleisch
+le poisson|der Fisch
+le poulet|das Hähnchen
+les légumes|das Gemüse
+le fruit|das Obst / die Frucht
+la salade|der Salat
+la soupe|die Suppe
+l'œuf|das Ei
+le beurre|die Butter
+le sucre|der Zucker
+le sel|das Salz
+le gâteau|der Kuchen
+le chocolat|die Schokolade
+la banane|die Banane
+la fraise|die Erdbeere
+la tomate|die Tomate
+la carotte|die Karotte / die Möhre
+la pomme de terre|die Kartoffel
+le riz|der Reis
+les pâtes|die Nudeln
+le jus|der Saft
+le petit-déjeuner|das Frühstück
+le déjeuner|das Mittagessen
+le dîner|das Abendessen`],
+["Zahlen", `un|eins
+deux|zwei
+trois|drei
+quatre|vier
+cinq|fünf
+six|sechs
+sept|sieben
+huit|acht
+neuf|neun
+dix|zehn
+onze|elf
+douze|zwölf
+treize|dreizehn
+quatorze|vierzehn
+quinze|fünfzehn
+seize|sechzehn
+vingt|zwanzig
+trente|dreißig
+cinquante|fünfzig
+cent|hundert
+mille|tausend`],
+["Farben", `la couleur|die Farbe
+rouge|rot
+bleu|blau
+vert|grün
+jaune|gelb
+noir|schwarz
+blanc|weiß
+gris|grau
+orange|orange
+rose|rosa
+violet|lila
+marron|braun`],
+["Tiere", `l'animal|das Tier
+le chien|der Hund
+le chat|die Katze
+l'oiseau|der Vogel
+le cheval|das Pferd
+la vache|die Kuh
+le cochon|das Schwein
+la souris|die Maus
+le lapin|das Kaninchen / der Hase
+le mouton|das Schaf
+la poule|das Huhn
+l'ours|der Bär
+le lion|der Löwe
+l'éléphant|der Elefant
+le canard|die Ente
+le serpent|die Schlange
+le singe|der Affe`],
+["Zuhause", `la maison|das Haus
+l'appartement|die Wohnung
+la chambre|das Zimmer / das Schlafzimmer
+la cuisine|die Küche
+la salle de bain|das Badezimmer / das Bad
+la porte|die Tür
+la fenêtre|das Fenster
+la table|der Tisch
+la chaise|der Stuhl
+le lit|das Bett
+le canapé|das Sofa
+la clé|der Schlüssel
+le jardin|der Garten
+le mur|die Wand / die Mauer
+l'escalier|die Treppe
+la lampe|die Lampe
+le miroir|der Spiegel
+la douche|die Dusche`],
+["Zeit & Tage", `le jour|der Tag
+la semaine|die Woche
+le mois|der Monat
+l'année|das Jahr
+aujourd'hui|heute
+demain|morgen
+hier|gestern
+le matin|der Morgen
+le soir|der Abend
+la nuit|die Nacht
+maintenant|jetzt
+toujours|immer
+jamais|nie
+souvent|oft
+l'heure|die Stunde / die Uhrzeit
+la minute|die Minute
+lundi|Montag
+mardi|Dienstag
+mercredi|Mittwoch
+jeudi|Donnerstag
+vendredi|Freitag
+samedi|Samstag
+dimanche|Sonntag
+le week-end|das Wochenende`],
+["Wichtige Verben", `être|sein
+avoir|haben
+aller|gehen
+faire|machen / tun
+venir|kommen
+manger|essen
+boire|trinken
+dormir|schlafen
+parler|sprechen / reden
+aimer|lieben / mögen
+vouloir|wollen
+pouvoir|können
+voir|sehen
+savoir|wissen
+prendre|nehmen
+donner|geben
+dire|sagen
+lire|lesen
+écrire|schreiben
+jouer|spielen
+travailler|arbeiten
+habiter|wohnen
+acheter|kaufen
+chercher|suchen
+trouver|finden
+ouvrir|öffnen
+fermer|schließen
+attendre|warten
+comprendre|verstehen
+apprendre|lernen
+aider|helfen
+chanter|singen
+courir|rennen / laufen
+regarder|anschauen / ansehen
+écouter|zuhören / hören`],
+["Körper", `la tête|der Kopf
+le visage|das Gesicht
+l'œil|das Auge
+le nez|die Nase
+la bouche|der Mund
+l'oreille|das Ohr
+la dent|der Zahn
+les cheveux|die Haare
+la main|die Hand
+le doigt|der Finger
+le bras|der Arm
+la jambe|das Bein
+le pied|der Fuß
+le dos|der Rücken
+le ventre|der Bauch
+le cœur|das Herz`],
+["Kleidung", `les vêtements|die Kleidung
+le pantalon|die Hose
+la chemise|das Hemd
+la robe|das Kleid
+la jupe|der Rock
+le pull|der Pullover / der Pulli
+la veste|die Jacke
+le manteau|der Mantel
+les chaussures|die Schuhe
+les chaussettes|die Socken
+le chapeau|der Hut
+le t-shirt|das T-Shirt
+l'écharpe|der Schal
+les lunettes|die Brille
+le sac|die Tasche`],
+["Eigenschaften", `grand|groß
+petit|klein
+bon|gut
+mauvais|schlecht
+beau|schön
+nouveau|neu
+vieux|alt
+jeune|jung
+chaud|warm / heiß
+froid|kalt
+facile|einfach / leicht
+difficile|schwierig / schwer
+content|zufrieden / froh
+heureux|glücklich
+triste|traurig
+fatigué|müde
+gentil|nett
+fort|stark
+rapide|schnell
+lent|langsam
+cher|teuer
+long|lang
+court|kurz
+plein|voll
+vide|leer`],
+["Stadt & Unterwegs", `la ville|die Stadt
+la rue|die Straße
+la place|der Platz
+le pays|das Land
+la gare|der Bahnhof
+la voiture|das Auto
+le bus|der Bus
+le train|der Zug
+le vélo|das Fahrrad
+l'avion|das Flugzeug
+l'école|die Schule
+le magasin|das Geschäft / der Laden
+le marché|der Markt
+la boulangerie|die Bäckerei
+la banque|die Bank
+l'hôpital|das Krankenhaus
+l'église|die Kirche
+le restaurant|das Restaurant
+le pont|die Brücke
+la plage|der Strand
+la mer|das Meer
+la montagne|der Berg`],
+["Wetter & Natur", `le temps|das Wetter / die Zeit
+le soleil|die Sonne
+la pluie|der Regen
+la neige|der Schnee
+le vent|der Wind
+le nuage|die Wolke
+il fait beau|das Wetter ist schön / es ist schön
+il pleut|es regnet
+le ciel|der Himmel
+l'étoile|der Stern
+la lune|der Mond
+l'arbre|der Baum
+la fleur|die Blume
+la forêt|der Wald
+la rivière|der Fluss
+le lac|der See`],
+["Schule & Arbeit", `le livre|das Buch
+le cahier|das Heft
+le stylo|der Kugelschreiber / der Stift
+le crayon|der Bleistift
+la page|die Seite
+le mot|das Wort
+la question|die Frage
+la réponse|die Antwort
+la langue|die Sprache / die Zunge
+la classe|die Klasse
+le professeur|der Lehrer
+l'élève|der Schüler
+le travail|die Arbeit
+le bureau|das Büro / der Schreibtisch
+l'ordinateur|der Computer
+le téléphone|das Telefon`],
+["Kleine Wörter", `et|und
+ou|oder
+mais|aber
+aussi|auch
+avec|mit
+sans|ohne
+pour|für
+dans|in
+sur|auf
+sous|unter
+très|sehr
+beaucoup|viel
+un peu|ein bisschen / ein wenig
+ici|hier
+là-bas|dort
+qui|wer
+quoi|was
+où|wo
+quand|wann
+pourquoi|warum
+comment|wie
+combien|wie viel`]
+];
+
+const CUSTOM_THEME = "Meine Wörter";
+const BUILTIN = [];
+VOCAB.forEach(([theme, block]) => block.split("\n").forEach(line => {
+  const [fr, de] = line.split("|").map(x => x && x.trim());
+  if (fr && de) BUILTIN.push({ id: "b:" + fr, fr, de, theme });
+}));
+let WORDS = [], WORD = {};
+function rebuildWords() {
+  const custom = save.learn.custom.map(c => ({ id: c.id, fr: c.fr, de: c.de, theme: CUSTOM_THEME }));
+  WORDS = [...custom, ...BUILTIN];   // eigene Wörter kommen zuerst dran
+  WORD = Object.fromEntries(WORDS.map(w => [w.id, w]));
+}
+
+/* ---------------- Münzen ---------------- */
+const COIN_SVG = '<svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="var(--brass)"/><circle cx="10" cy="10" r="5.7" fill="none" stroke="var(--coin-line)" stroke-width="1.3" opacity=".75"/></svg>';
+const fmtC = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 2 });
+const fmtCoin = v => fmtC.format(Math.round(v * 100) / 100);
+const fmtMult = m => "×" + m.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const round2 = v => Math.round(v * 100) / 100;
+function addCoins(d) {
+  save.coins = Math.max(0, round2(save.coins + d));
+  persist();
+  updateCoinUI(true);
+}
+function updateCoinUI(bump) {
+  document.querySelectorAll(".coin-val").forEach(el => el.textContent = fmtCoin(save.coins));
+  if (bump && !reduceMotion) document.querySelectorAll(".chip-coins").forEach(c => { c.classList.remove("bump"); void c.offsetWidth; c.classList.add("bump"); });
+  const sc = streakCurrent();
+  $("streak-val").textContent = sc;
+  $("chip-streak").classList.toggle("off", !sc);
+  if (currentView === "play" && (state === "idle" || state === "revealed")) updateActions();
+}
+
+/* ---------------- Tage & Streak ---------------- */
+function today() { const d = new Date(); return Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000); }
+function streakCurrent() { const t = today(), s = save.streak; return (s.last === t || s.last === t - 1) ? s.count : 0; }
+function streakForToday() { const t = today(), s = save.streak; return s.last === t ? s.count : s.last === t - 1 ? s.count + 1 : 1; }
+const multFor = n => Math.min(2, 1 + 0.01 * Math.max(0, n - 1));
+const dailyDone = () => save.daily.day === today() && save.daily.done;
+const practiceDone = () => save.daily.day === today() && save.daily.practice;
+
+/* ---------------- Lernkartei (Leitner, Fach 1–5) ---------------- */
+const INTERVAL = [0, 1, 2, 4, 8, 16];
+const W = () => save.learn.w;
+function introduced() { return WORDS.filter(w => W()[w.id]); }
+function pickNew(n, exclude) {
+  const out = [];
+  for (const w of WORDS) { if (out.length >= n) break; if (!W()[w.id] && !(exclude && exclude.has(w.id))) out.push(w.id); }
+  return out;
+}
+function applyResult(id, ok) {
+  const t = today();
+  let st = W()[id];
+  if (!st) st = W()[id] = { b: 0, due: t, last: -9, lastBad: -9, intro: t, ok: 0, bad: 0 };
+  const first = st.last !== t;
+  if (ok) {
+    st.ok++;
+    if (st.b === 0) { st.b = 1; st.due = t + 1; }
+    else if (first) { st.due = t + (st.b === 5 ? 32 : INTERVAL[st.b + 1]); st.b = Math.min(5, st.b + 1); }
+  } else { st.bad++; st.b = 1; st.due = t + 1; st.lastBad = t; }
+  st.last = t;
+}
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const randDir = () => rand() < .5 ? "fr2de" : "de2fr";
+function makeQs(mcIds, writeIds) {
+  const qs = shuffle([...mcIds.map(w => ({ w, t: "mc" })), ...writeIds.map(w => ({ w, t: "write" }))]);
+  // Ein Wort erst auswählen, dann schreiben
+  for (let i = 0; i < qs.length; i++) if (qs[i].t === "write") {
+    const j = qs.findIndex((q, k) => k > i && q.t === "mc" && q.w === qs[i].w);
+    if (j > i) [qs[i], qs[j]] = [qs[j], qs[i]];
+  }
+  // Gleiches Wort nicht direkt hintereinander (wenn möglich)
+  for (let i = 1; i < qs.length; i++) if (qs[i].w === qs[i - 1].w) {
+    const j = qs.findIndex((q, k) => k > i && q.w !== qs[i - 1].w && !(q.t === "write" && qs.slice(0, i).every(p => p.w !== q.w) && mcIds.includes(q.w)));
+    if (j > i) { const [q] = qs.splice(j, 1); qs.splice(i, 0, q); }
+  }
+  for (const q of qs) { q.d = randDir(); if (q.t === "mc") q.opts = makeOptions(q.w, q.d); }
+  return qs;
+}
+function makeOptions(id, d) {
+  const w = WORD[id], side = d === "fr2de" ? "de" : "fr";
+  // Keine Ablenker, die eine Bedeutung mit dem Zielwort (oder untereinander) teilen
+  const keys = x => [...alts(x.fr), ...alts(x.de)].map(k => { const l = looseKey(k); return splitArt(l, "de").core.replace(/^(le|la|les) |^l'/, ""); });
+  const taken = new Set(keys(w));
+  const pick = list => { const out = []; for (const x of shuffle(list.slice())) { if (out.length >= 3) break; const ks = keys(x); if (x.id !== id && !ks.some(k => taken.has(k))) { ks.forEach(k => taken.add(k)); out.push(x.id); } } return out; };
+  let opts = pick(WORDS.filter(x => x.theme === w.theme));
+  if (opts.length < 3) opts = opts.concat(pick(WORDS.filter(x => !opts.includes(x.id)))).slice(0, 3);
+  return shuffle([id, ...opts]);
+}
+
+function buildDaily() {
+  const t = today();
+  const known = introduced().map(w => w.id).filter(id => W()[id].b >= 1);
+  const due = known.filter(id => W()[id].due <= t).sort((a, b) => W()[a].b - W()[b].b || W()[a].due - W()[b].due);
+  const notDue = known.filter(id => W()[id].due > t).sort((a, b) => W()[a].due - W()[b].due || W()[a].b - W()[b].b);
+  const nNew = known.length === 0 ? 5 : due.length >= 8 ? 1 : due.length >= 5 ? 2 : 3;
+  const fresh = pickNew(nNew);
+  const review = [...due, ...notDue];
+  const writes = review.slice(0, 5);
+  const mcs = fresh.slice(0, 5);
+  let ri = writes.length;
+  while (mcs.length < 5 && ri < review.length) mcs.push(review[ri++]);
+  // noch Platz: bekannte Wörter dürfen in derselben Runde auch gewählt werden
+  for (let k = 0; mcs.length < 5 && k < writes.length; k++) if (!mcs.includes(writes[k])) mcs.push(writes[k]);
+  if (mcs.length < 5) { const more = pickNew(5 - mcs.length, new Set(fresh)); mcs.push(...more); fresh.push(...more); }
+  for (let k = 0; writes.length < 5 && fresh.length; k++) writes.push(fresh[k % fresh.length]);
+  const all = WORDS.map(w => w.id);
+  while (mcs.length < 5) mcs.push(all[Math.floor(rand() * all.length)]);
+  while (writes.length < 5) writes.push(mcs[writes.length % mcs.length]);
+  return { kind: "daily", day: t, mult: multFor(streakForToday()), qs: makeQs(mcs, writes), i: 0, ans: [], earned: 0 };
+}
+function buildPractice() {
+  const t = today();
+  const intro = introduced().map(w => w.id);
+  const st = id => W()[id];
+  const order = [
+    ...intro.filter(id => st(id).lastBad === t),
+    ...intro.filter(id => st(id).intro === t && st(id).lastBad !== t),
+    ...intro.filter(id => st(id).last === t && st(id).intro !== t && st(id).lastBad !== t),
+    ...intro.filter(id => st(id).last !== t).sort((a, b) => st(a).b - st(b).b || st(a).due - st(b).due)
+  ];
+  const ids = [...new Set(order)].slice(0, 10);
+  while (ids.length < 10 && ids.length) ids.push(ids[ids.length % Math.max(1, new Set(ids).size)]);
+  const half = shuffle(ids.slice());
+  return { kind: "practice", day: t, mult: 1, qs: makeQs(half.slice(0, 5), half.slice(5, 10)), i: 0, ans: [], earned: 0 };
+}
+
+/* ---------------- Antworten prüfen ---------------- */
+const FR_ART = /^(le|la|les)\s+|^l'\s*|^l\s+/;
+const DE_ART = /^(der|die|das)\s+/;
+function strictKey(s) {
+  return String(s).toLowerCase().replace(/\(.*?\)/g, " ").replace(/[’`´]/g, "'")
+    .replace(/[?!.,;:¿¡"«»]/g, " ").replace(/\s*-\s*/g, "-").replace(/\s+/g, " ").trim();
+}
+function looseKey(s) {
+  return strictKey(s).replace(/œ/g, "oe").replace(/æ/g, "ae").replace(/ß/g, "ss")
+    .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/-/g, " ");
+}
+const alts = s => String(s).split(" / ").map(x => x.trim()).filter(Boolean);
+const display = s => alts(s).join(" / ");
+const firstAlt = s => alts(s)[0].replace(/\s*\(.*?\)\s*/g, " ").trim();
+function splitArt(k, lang) {
+  const re = lang === "fr" ? FR_ART : DE_ART;
+  const m = k.match(re);
+  if (!m) return { art: "", core: k };
+  const core = k.slice(m[0].length);
+  return core ? { art: m[0].trim(), core } : { art: "", core: k };
+}
+function lev(a, b) {
+  if (Math.abs(a.length - b.length) > 1) return 2;
+  const dp = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = dp[0]; dp[0] = i;
+    for (let j = 1; j <= b.length; j++) { const tmp = dp[j]; dp[j] = Math.min(dp[j] + 1, dp[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1)); prev = tmp; }
+  }
+  return dp[b.length];
+}
+// Ergebnis: { ok, hint }
+function checkWrite(word, dir, input) {
+  const lang = dir === "fr2de" ? "de" : "fr";
+  const target = word[lang];
+  const inS = strictKey(input), inL = looseKey(input);
+  if (!inS) return { ok: false, hint: "" };
+  const inA = splitArt(inS, lang), inAL = splitArt(inL, lang);
+  let best = null;
+  for (const alt of alts(target)) {
+    const aS = strictKey(alt), aL = looseKey(alt);
+    const tA = splitArt(aS, lang), tAL = splitArt(aL, lang);
+    const shown = alt.replace(/\s*\(.*?\)\s*/g, " ").trim();
+    if (inS === aS) return { ok: true, hint: "" };
+    const artWrong = inA.art && tA.art && inA.art !== tA.art;
+    const artMissing = !inA.art && tA.art;
+    const coreExact = inA.core === tA.core, coreLoose = inAL.core === tAL.core;
+    const typo = !coreLoose && tAL.core.length >= 5 && lev(inAL.core, tAL.core) <= 1;
+    if (coreExact || coreLoose || typo) {
+      if (artWrong && lang === "fr") { best = best || { ok: false, hint: `Fast! Der Artikel ist „${tA.art === "l'" ? "l’" : tA.art}“: ${shown}` }; continue; }
+      const notes = [];
+      if (typo) notes.push("kleiner Tippfehler");
+      else if (!coreExact) notes.push(inA.core.replace(/-/g, " ") === tA.core.replace(/-/g, " ") ? "achte auf den Bindestrich" : lang === "fr" ? "achte auf die Akzente" : "achte auf die Schreibweise");
+      if (artMissing && lang === "fr") notes.push("lern den Artikel mit");
+      if (artWrong && lang === "de") notes.push("im Deutschen heißt es " + tA.art);
+      const hint = notes.length ? notes[0][0].toUpperCase() + notes.join(", ").slice(1) + `: ${shown}` : "";
+      return { ok: true, hint };
+    }
+  }
+  return best || { ok: false, hint: "" };
+}
+
+/* ---------------- Vorlesen ---------------- */
+const canSpeak = "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
+let frVoice = null;
+function pickVoice() {
+  try {
+    const vs = speechSynthesis.getVoices();
+    frVoice = vs.find(v => /^fr[-_]FR/i.test(v.lang) && /google|amélie|thomas|audrey|marie|premium|enhanced/i.test(v.name)) || vs.find(v => /^fr[-_]FR/i.test(v.lang)) || vs.find(v => /^fr/i.test(v.lang)) || null;
+  } catch (e) {}
+}
+if (canSpeak) { pickVoice(); try { speechSynthesis.addEventListener("voiceschanged", pickVoice); } catch (e) {} }
+function speak(text, btn) {
+  if (!canSpeak) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(firstAlt(text));
+    u.lang = "fr-FR"; u.rate = 0.88; if (frVoice) u.voice = frVoice;
+    if (btn) { btn.classList.add("playing"); u.onend = u.onerror = () => btn.classList.remove("playing"); }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+const SPEAK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
+const speakBtn = (fr, sm) => canSpeak ? `<button class="speak${sm ? " sm" : ""}" data-speak="${esc(fr)}" aria-label="Vorlesen">${SPEAK_ICON}</button>` : "";
+const FLAME = '<svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><path d="M10.6 1.8c.4 3-1.6 4.4-3 6.1C6.3 9.4 5 11 5 13.3 5 16.2 7.3 18.5 10 18.5s5-2.2 5-5.1c0-2.4-1.3-3.9-2.2-4.9.1 1.4-.4 2.6-1.4 3.2.5-3.6-.3-6.9-.8-9.9z" fill="var(--flame)"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+/* ---------------- Ansicht: Lernen ---------------- */
+const LB = $("learn-body");
+let lastSummary = null, cdTimer = 0, renderedDay = today();
+LB.addEventListener("click", e => {
+  const sp = e.target.closest("[data-speak]");
+  if (sp) { speak(sp.dataset.speak, sp); return; }
+  const a = e.target.closest("[data-act]");
+  if (a && !a.disabled) learnAction(a.dataset.act, a);
+});
+
+function roundValid() {
+  const r = save.round;
+  if (!r) return false;
+  if (r.day !== today()) { save.round = null; persist(); return false; }
+  return true;
+}
+function renderLearn() {
+  rebuildWords();
+  renderedDay = today();
+  clearInterval(cdTimer);
+  updateCoinUI();
+  if (roundValid()) return renderQuiz();
+  if (lastSummary) return renderSummary();
+  renderHome();
+}
+
+function untilMidnight() {
+  const n = new Date(), m = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1);
+  const mins = Math.max(0, Math.ceil((m - n) / 60000));
+  const h = Math.floor(mins / 60), mm = mins % 60;
+  return h ? `${h} Std ${mm} Min` : `${mm} Min`;
+}
+
+function renderHome() {
+  const t = today();
+  const sToday = streakForToday(), mult = multFor(sToday), cur = streakCurrent();
+  const maxCoins = round2(20 * mult);
+  const r = save.round;
+  let hero;
+  if (dailyDone()) {
+    hero = `<div class="hero">
+      <div class="done-row"><span class="done-check">${CHECK}</span><div><h2 style="font-size:1.4rem">Heute erledigt</h2>
+      <p>${save.daily.ok} von 10 richtig · <span class="mono">+${fmtCoin(save.daily.earned)}</span> Münzen</p></div></div>
+      <p>Die nächste Tagesrunde startet in <span class="countdown" id="cd">${untilMidnight()}</span>.</p>
+      <button class="btn" data-act="go-play">Lose kaufen</button>
+    </div>`;
+  } else {
+    const resume = r && r.kind === "daily";
+    hero = `<div class="hero">
+      <span class="eyebrow">Tagesrunde · Französisch</span>
+      <h2>${resume ? "Weiter, wo du warst" : (introduced().length ? "Bereit für heute?" : "Dein erster Tag")}</h2>
+      <div class="facts-line">
+        ${resume ? `<span>Frage <b>${r.i + 1}/10</b></span><span>bisher ${COIN_SVG}<b>+${fmtCoin(r.earned)}</b></span>`
+                 : `<span><b>10</b> Fragen</span><span>bis zu ${COIN_SVG}<b>${fmtCoin(maxCoins)}</b></span>${sToday > 1 ? `<span>Bonus <b>${fmtMult(mult)}</b></span>` : ""}`}
+      </div>
+      <button class="btn" data-act="${resume ? "resume" : "start-daily"}">${resume ? "Fortsetzen" : "Runde starten"}</button>
+    </div>`;
+  }
+  const pDone = practiceDone(), pResume = r && r.kind === "practice";
+  const pAvail = pResume || (dailyDone() && !pDone);
+  const practice = `<div class="list"><div class="list-row">
+    <div class="grow"><h3>Übungsrunde</h3><p>${pResume ? `Frage ${r.i + 1} von 10` : dailyDone() ? (pDone ? "Für heute geübt." : "10 Fragen ohne Münzen. Deine Fehler von heute zuerst.") : "Nach der Tagesrunde verfügbar."}</p></div>
+    <button class="btn sm${pAvail ? "" : " quiet"}" data-act="${pResume ? "resume" : "start-practice"}" ${pAvail ? "" : "disabled"}>${pResume ? "Weiter" : "Üben"}</button>
+  </div></div>`;
+
+  const played = save.streak.last === t;
+  const wk = cur > 0 && cur % 7 === 0 && played ? 7 : cur % 7;
+  const mo = cur > 0 && cur % 30 === 0 && played ? 30 : cur % 30;
+  const streak = `<div class="section-title"><h2>Serie</h2><span>${played ? `morgen ${fmtMult(multFor(cur + 1))}` : cur ? "heute noch offen" : ""}</span></div>
+  <div class="panel streak">
+    <div class="streak-n"><b>${cur}</b><span>${cur === 1 ? "Tag" : "Tage"} in Folge</span></div>
+    <div class="mult"><b>${fmtMult(played ? multFor(cur) : mult)}</b><span>Münzen je Antwort</span></div>
+    <div class="goals">
+      <div class="goal"><div class="goal-head"><span>Woche <b>+10</b></span><span class="mono">${wk}/7</span></div><div class="ticks">${Array.from({ length: 7 }, (_, i) => `<i class="${i < wk ? "on" : ""}"></i>`).join("")}</div></div>
+      <div class="goal"><div class="goal-head"><span>Monat <b>+50</b></span><span class="mono">${mo}/30</span></div><div class="bar flame"><i style="width:${mo / 30 * 100}%"></i></div></div>
+    </div>
+  </div>`;
+
+  const intro = introduced(), boxes = [0, 0, 0, 0, 0, 0];
+  intro.forEach(w => boxes[W()[w.id].b]++);
+  const dueN = intro.filter(w => W()[w.id].due <= t && W()[w.id].b >= 1).length;
+  const nextNew = WORDS.find(w => !W()[w.id]);
+  const total = WORDS.length;
+  const C = ["", "var(--line-2)", "var(--brass)", "var(--brass)", "var(--ok)", "var(--ok)"];
+  const seg = [1, 2, 3, 4, 5].filter(b => boxes[b]).map(b => `<i style="width:${boxes[b] / total * 100}%;background:${C[b]};opacity:${[0, 1, .55, 1, .55, 1][b]}"></i>`).join("");
+  const vocab = `<div class="section-title"><h2>Wortschatz</h2><span>${intro.length}/${total}</span></div>
+  <div class="panel">
+    <div class="vstats flat">
+      <div class="vstat"><b>${intro.length}</b><span>gelernt</span></div>
+      <div class="vstat"><b>${boxes[5]}</b><span>beherrscht</span></div>
+      <div class="vstat"><b>${dueN}</b><span>heute fällig</span></div>
+    </div>
+    <div class="boxbar">${seg}</div>
+    <p style="font-size:.86rem">${nextNew ? `Aktuelles Thema: <b style="color:var(--ink);font-weight:600">${esc(nextNew.theme)}</b>` : "Alle Wörter eingeführt. Jetzt wird wiederholt."}</p>
+    <div class="row"><button class="btn quiet sm" style="flex:1" data-act="wordlist">Wortliste</button><button class="btn quiet sm" style="flex:1" data-act="custom">Meine Wörter</button></div>
+  </div>`;
+  LB.innerHTML = hero + practice + `<div style="display:flex;flex-direction:column;gap:10px">${streak}</div><div style="display:flex;flex-direction:column;gap:10px">${vocab}</div>`;
+  if (dailyDone()) cdTimer = setInterval(() => { const el = $("cd"); if (el) el.textContent = untilMidnight(); if (today() !== renderedDay) renderLearn(); }, 20000);
+}
+
+function learnAction(act, el) {
+  if (act === "start-daily") { if (dailyDone()) return renderLearn(); save.round = buildDaily(); persist(); renderLearn(); }
+  else if (act === "start-practice") { if (!dailyDone() || practiceDone()) return; save.round = buildPractice(); persist(); renderLearn(); }
+  else if (act === "resume") renderLearn();
+  else if (act === "pause") { lastSummary = null; renderHome(); $("view-learn").scrollTop = 0; }
+  else if (act === "next") nextQuestion();
+  else if (act === "check") submitWrite();
+  else if (act === "opt") answerMc(el.dataset.id, el);
+  else if (act === "acc") { const inp = $("q-input"); if (!inp || inp.readOnly) return; const s0 = inp.selectionStart ?? inp.value.length, s1 = inp.selectionEnd ?? s0; inp.value = inp.value.slice(0, s0) + el.textContent + inp.value.slice(s1); inp.focus(); inp.setSelectionRange(s0 + 1, s0 + 1); $("q-check").disabled = !inp.value.trim(); }
+  else if (act === "home") { lastSummary = null; renderLearn(); $("view-learn").scrollTop = 0; }
+  else if (act === "go-play") { lastSummary = null; renderHome(); showView("play"); }
+  else if (act === "wordlist") openWordlist();
+  else if (act === "custom") openCustom();
+}
+
+/* ---------------- Quiz ---------------- */
+function renderQuiz() {
+  const r = save.round, q = r.qs[r.i], w = WORD[q.w];
+  if (!w) { r.ans[r.i] = { skip: true, ok: false, coins: 0 }; persist(); return nextQuestion(); }
+  const a = r.ans[r.i];
+  const daily = r.kind === "daily";
+  const prog = r.qs.map((_, k) => { const x = r.ans[k]; return `<i class="${x ? (x.skip ? "" : x.ok ? "ok" : "bad") : k === r.i ? "cur" : ""}"></i>`; }).join("");
+  const base = q.t === "mc" ? 1 : 3;
+  const promptText = q.d === "fr2de" ? w.fr : display(w.de);
+  const kind = q.t === "mc" ? (q.d === "fr2de" ? "Was heißt das?" : "Wie heißt das auf Französisch?") : (q.d === "fr2de" ? "Schreib es auf Deutsch" : "Schreib es auf Französisch");
+  const isNew = a ? !!a.wasNew : !W()[q.w];
+  const flag = q.d === "fr2de" ? "FR" : "DE";
+  let body;
+  if (q.t === "mc") {
+    const side = q.d === "fr2de" ? "de" : "fr";
+    body = `<div class="opts">${q.opts.map((id, k) => { const o = WORD[id]; if (!o) return ""; let cls = ""; if (a) { if (id === q.w) cls = "right"; else if (id === a.pick) cls = "wrong"; } return `<button class="opt ${cls}" data-act="opt" data-id="${esc(id)}" ${a ? "disabled" : ""}><kbd>${k + 1}</kbd><span>${esc(display(o[side]))}</span></button>`; }).join("")}</div>`;
+  } else {
+    const acc = q.d === "de2fr" ? ["é", "è", "ê", "à", "â", "ç", "ù", "û", "î", "ô", "ë", "ï", "œ", "’"] : ["ä", "ö", "ü", "ß"];
+    body = `<div class="write">
+      <input id="q-input" type="text" lang="${q.d === "de2fr" ? "fr" : "de"}" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" placeholder="${q.d === "de2fr" ? "auf Französisch …" : "auf Deutsch …"}" ${a ? `readonly class="${a.ok ? "right" : "wrong"}" value="${esc(a.given || "")}"` : ""}>
+      ${a ? "" : `<div class="accents">${acc.map(c => `<button data-act="acc" tabindex="-1">${c}</button>`).join("")}</div>
+      <button class="btn" id="q-check" data-act="check" disabled>Prüfen</button>`}
+    </div>`;
+  }
+  let fb = "";
+  if (a) {
+    const ansSide = q.d === "fr2de" ? "de" : "fr";
+    const title = a.ok ? ["Richtig", "Genau", "Très bien", "Richtig", "Parfait"][(r.i * 7 + q.w.length) % 5] : "Nicht ganz";
+    let picked = "";
+    if (!a.ok && q.t === "mc" && a.pick && WORD[a.pick]) { const p = WORD[a.pick]; picked = `<div class="fb-hint">„${esc(display(p[ansSide]))}“ heißt ${q.d === "fr2de" ? "auf Französisch" : "auf Deutsch"}: ${esc(display(q.d === "fr2de" ? p.fr : p.de))}</div>`; }
+    fb = `<div class="fb ${a.ok ? "ok" : "bad"}">
+      <div class="fb-title"><span>${title}</span>${a.ok && daily ? `<span class="fb-coins">+${fmtCoin(a.coins)} ${COIN_SVG}</span>` : ""}</div>
+      <div class="fb-ans">${speakBtn(w.fr, true)}<div><b>${esc(w.fr)}</b> = ${esc(display(w.de))}</div></div>
+      ${a.hint ? `<div class="fb-hint">${esc(a.hint)}</div>` : ""}${picked}
+      <button class="btn" id="q-next" data-act="next">${r.i >= r.qs.length - 1 ? "Ergebnis ansehen" : "Weiter"}</button>
+    </div>`;
+  }
+  LB.innerHTML = `<div class="quiz">
+    <div class="q-top"><button class="q-close" data-act="pause" aria-label="Pause">${closeIcon}</button><div class="q-prog">${prog}</div>
+      ${daily ? `<span class="q-earn">${COIN_SVG}+${fmtCoin(r.earned)}</span>` : `<span class="q-earn practice">Übung</span>`}</div>
+    <div class="q-card">
+      <div class="q-meta"><span class="q-kind">${kind}</span>${isNew ? `<span class="q-badge new">Neues Wort</span>` : ""}${daily ? `<span class="q-badge rew">+${fmtCoin(round2(base * r.mult))}</span>` : ""}</div>
+      <div class="q-word"><span>${esc(promptText)}</span>${q.d === "fr2de" ? speakBtn(w.fr) : ""}</div>
+      <span class="q-theme">${flag === "FR" ? "Französisch" : "Deutsch"} · ${esc(w.theme)}</span>
+    </div>
+    ${body}${fb}
+  </div>`;
+  const inp = $("q-input");
+  if (inp && !a) {
+    inp.addEventListener("input", () => { $("q-check").disabled = !inp.value.trim(); });
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); submitWrite(); } });
+    setTimeout(() => { try { inp.focus({ preventScroll: true }); } catch (e) {} }, 60);
+  }
+  if (a) {
+    const nb = $("q-next");
+    setTimeout(() => { try { nb.focus({ preventScroll: true }); nb.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" }); } catch (e) {} }, 60);
+  }
+}
+
+function recordAnswer(ok, extra) {
+  const r = save.round, q = r.qs[r.i];
+  let coins = 0;
+  if (ok && r.kind === "daily") { coins = round2((q.t === "mc" ? 1 : 3) * r.mult); r.earned = round2(r.earned + coins); }
+  r.ans[r.i] = Object.assign({ ok, coins, wasNew: !W()[q.w] }, extra);
+  applyResult(q.w, ok);
+  if (coins) addCoins(coins); else persist();
+  renderQuiz();
+  if (q.d === "de2fr" && canSpeak && ok) speak(WORD[q.w].fr);
+}
+function answerMc(id) {
+  const r = save.round; if (!r || r.ans[r.i]) return;
+  const q = r.qs[r.i];
+  const side = q.d === "fr2de" ? "de" : "fr";
+  const ok = id === q.w || (WORD[id] && looseKey(WORD[id][side]) === looseKey(WORD[q.w][side]));
+  recordAnswer(ok, { pick: id });
+}
+function submitWrite() {
+  const r = save.round; if (!r || r.ans[r.i]) return;
+  const inp = $("q-input"); if (!inp || !inp.value.trim()) return;
+  const q = r.qs[r.i];
+  const res = checkWrite(WORD[q.w], q.d, inp.value);
+  recordAnswer(res.ok, { given: inp.value.trim(), hint: res.hint });
+}
+document.addEventListener("keydown", e => {
+  if (currentView !== "learn" || $("sheet-root").firstChild) return;
+  if (/^[1-4]$/.test(e.key) && document.activeElement?.tagName !== "INPUT") {
+    const r = save.round; const q = r && r.qs[r.i];
+    if (q && q.t === "mc" && !r.ans[r.i] && q.opts[+e.key - 1]) { e.preventDefault(); answerMc(q.opts[+e.key - 1]); }
+    return;
+  }
+  if (e.key !== "Enter") return;
+  const nb = $("q-next");
+  if (nb && document.activeElement !== nb) { e.preventDefault(); nb.click(); }
+});
+function nextQuestion() {
+  const r = save.round; if (!r) return renderLearn();
+  if (r.i < r.qs.length - 1) { r.i++; persist(); renderQuiz(); $("view-learn").scrollTop = 0; return; }
+  finishRound();
+}
+function finishRound() {
+  const r = save.round, t = today();
+  const ok = r.ans.filter(x => x && x.ok).length;
+  const missed = [...new Set(r.qs.filter((q, k) => r.ans[k] && !r.ans[k].ok && !r.ans[k].skip).map(q => q.w))];
+  const sum = { kind: r.kind, ok, n: r.qs.length, earned: r.earned, missed, bonus: [] };
+  if (r.kind === "daily") {
+    const s = save.streak;
+    if (s.last !== t) { s.count = s.last === t - 1 ? s.count + 1 : 1; s.last = t; }
+    let bonus = 0;
+    if (s.count % 7 === 0) { bonus += 10; sum.bonus.push(["Wochenbonus", 10, `${s.count} Tage in Folge`]); }
+    if (s.count % 30 === 0) { bonus += 50; sum.bonus.push(["Monatsbonus", 50, `${s.count} Tage in Folge`]); }
+    save.daily = { day: t, done: true, practice: false, ok, earned: round2(r.earned + bonus) };
+    sum.streak = s.count; sum.mult = r.mult; sum.next = multFor(s.count + 1);
+    save.round = null;
+    if (bonus) addCoins(bonus); else persist();
+    if (save.coins >= COST.normal) $("play-dot").hidden = false;
+  } else {
+    if (save.daily.day === t) save.daily.practice = true;
+    save.round = null; persist();
+  }
+  lastSummary = sum;
+  updateCoinUI();
+  renderSummary();
+  $("view-learn").scrollTop = 0;
+}
+function renderSummary() {
+  const s = lastSummary, daily = s.kind === "daily";
+  const msg = s.ok === s.n ? "Fehlerfrei." : s.ok >= 8 ? "Starke Runde." : s.ok >= 5 ? "Gut gemacht." : "Morgen sitzt es besser.";
+  LB.innerHTML = `<div class="result">
+      <span class="eyebrow">${daily ? "Tagesrunde abgeschlossen" : "Übungsrunde abgeschlossen"}</span>
+      <h2>${msg}</h2>
+      <div class="result-nums">
+        <div><b>${s.ok}<small>/${s.n}</small></b><span>richtig</span></div>
+        ${daily ? `<div><b>${COIN_SVG}${fmtCoin(s.earned)}</b><span>Münzen verdient</span></div>` : `<div><b>–</b><span>Übung ohne Münzen</span></div>`}
+      </div>
+      ${daily ? `<p>${s.streak} ${s.streak === 1 ? "Tag" : "Tage"} in Folge. Morgen gibt es ${fmtMult(s.next)} pro richtiger Antwort.</p>` : ""}
+      ${s.bonus.map(([n, v, d]) => `<div class="bonus">${COIN_SVG}<span><b>${n}: +${v} Münzen</b><br>${d}</span></div>`).join("")}
+      ${s.missed.length ? `<div><span class="eyebrow">Zum Wiederholen</span><div class="miss" style="margin-top:8px">${s.missed.map(id => WORD[id]).filter(Boolean).map(w => `<div class="miss-row">${speakBtn(w.fr, true)}<div class="grow"><b>${esc(w.fr)}</b><span>${esc(display(w.de))}</span></div></div>`).join("")}</div></div>` : ""}
+      <div class="btn-col">
+        ${daily ? `<button class="btn" data-act="go-play">Lose kaufen</button>` : ""}
+        ${daily && !practiceDone() ? `<button class="btn secondary" data-act="start-practice">Übungsrunde</button>` : ""}
+        <button class="btn ${daily ? "quiet" : ""}" data-act="home">Zur Übersicht</button>
+      </div>
+    </div>`;
+  if (daily && s.bonus.length && !reduceMotion) toast(s.bonus.map(b => `${b[0]} +${b[1]}`).join(" · "));
+}
+
+/* ---------------- Wortliste & eigene Wörter ---------------- */
+function boxDots(id) {
+  const st = W()[id];
+  if (!st) return `<span class="boxdots"><i></i><i></i><i></i><i></i><i></i></span>`;
+  return `<span class="boxdots${st.b === 5 ? " master" : ""}">${[1, 2, 3, 4, 5].map(b => `<i class="${st.b >= b ? "on" : ""}"></i>`).join("")}</span>`;
+}
+function openWordlist() {
+  rebuildWords();
+  const themes = [];
+  for (const w of WORDS) { let t = themes.find(x => x.name === w.theme); if (!t) themes.push(t = { name: w.theme, list: [] }); t.list.push(w); }
+  const sheet = openSheet(`<h2>Wortliste</h2>
+    <p style="margin-top:6px">Die Punkte zeigen das Fach: 5 grüne Punkte heißt beherrscht. Grau sind Wörter, die noch kommen.${canSpeak ? " Tippe auf ein Wort zum Anhören." : ""}</p>
+    ${themes.map(t => { const n = t.list.filter(w => W()[w.id]).length; return `<div class="wl-theme"><h3>${esc(t.name)} <small>${n}/${t.list.length}</small></h3><div class="wl">${t.list.map(w => `<button class="wl-row${W()[w.id] ? "" : " locked"}" data-speak="${esc(w.fr)}">${boxDots(w.id)}<span class="fr">${esc(w.fr)}</span><span class="de">${esc(display(w.de))}</span></button>`).join("")}</div></div>`; }).join("")}`, "Wortliste");
+  sheet.addEventListener("click", e => { const b = e.target.closest("[data-speak]"); if (b) speak(b.dataset.speak); });
+}
+function openCustom() {
+  const delIcon = closeIcon;
+  const render = () => {
+    const list = save.learn.custom;
+    sheet.querySelector("#cw-list").innerHTML = list.length ? `<div class="wl">${list.map(c => `<div class="wl-row">${boxDots(c.id)}<span class="fr">${esc(c.fr)}</span><span class="de">${esc(c.de)}</span><button class="del" data-del="${esc(c.id)}" aria-label="Löschen">${delIcon}</button></div>`).join("")}</div>` : `<p class="hint">Noch keine eigenen Wörter.</p>`;
+  };
+  const sheet = openSheet(`<h2>Meine Wörter</h2>
+    <p style="margin-top:6px">Eigene Vokabeln, z. B. aus Kurs oder Schule. Sie kommen vor den eingebauten Wörtern dran, 2–3 neue pro Tag.</p>
+    <div class="section">
+      <h3>Wörter hinzufügen</h3>
+      <p>Eine Vokabel pro Zeile: <b>Französisch = Deutsch</b>. Mehrere deutsche Bedeutungen mit „/“ trennen.</p>
+      <textarea id="cw-in" placeholder="la maison = das Haus&#10;le chien = der Hund&#10;aimer = lieben / mögen" lang="fr" spellcheck="false"></textarea>
+      <div class="row"><button class="btn" id="cw-add">Hinzufügen</button></div>
+      <div id="cw-msg"></div>
+    </div>
+    <div class="section"><h3>Deine Liste</h3><div id="cw-list"></div></div>`, "Meine Wörter");
+  render();
+  sheet.querySelector("#cw-add").addEventListener("click", () => {
+    const lines = sheet.querySelector("#cw-in").value.split(/\n/).map(l => l.trim()).filter(Boolean);
+    let added = 0, bad = 0, dup = 0;
+    const have = new Set([...save.learn.custom.map(c => looseKey(c.fr)), ...BUILTIN.map(b => looseKey(b.fr))]);
+    for (const l of lines) {
+      const m = l.split(/\s*(?:=|;|\t|\s-\s|\s–\s)\s*/);
+      if (m.length < 2 || !m[0] || !m[1]) { bad++; continue; }
+      const fr = m[0].trim(), de = m.slice(1).join(" / ").replace(/\s*,\s*/g, " / ").trim();
+      if (have.has(looseKey(fr))) { dup++; continue; }
+      have.add(looseKey(fr));
+      save.learn.custom.push({ id: "c:" + Date.now().toString(36) + Math.floor(rand() * 1e6).toString(36), fr: fr.slice(0, 80), de: de.slice(0, 120) });
+      added++;
+    }
+    persist(); rebuildWords(); render();
+    if (added) sheet.querySelector("#cw-in").value = "";
+    sheet.querySelector("#cw-msg").innerHTML = lines.length ? `<p class="hint">${added} hinzugefügt${dup ? ` · ${dup} schon vorhanden` : ""}${bad ? ` · ${bad} Zeile${bad > 1 ? "n" : ""} ohne „=“ übersprungen` : ""}</p>` : "";
+    if (currentView === "learn" && !save.round && !lastSummary) renderHome();
+  });
+  sheet.querySelector("#cw-list").addEventListener("click", e => {
+    const b = e.target.closest("[data-del]"); if (!b) return;
+    const id = b.dataset.del;
+    save.learn.custom = save.learn.custom.filter(c => c.id !== id);
+    delete save.learn.w[id];
+    persist(); rebuildWords(); render();
+    if (currentView === "learn" && !save.round && !lastSummary) renderHome();
+  });
+}
+
+/* Tageswechsel, während die App offen ist */
+document.addEventListener("visibilitychange", () => { if (!document.hidden && today() !== renderedDay && currentView === "learn") { lastSummary = null; renderLearn(); } });
+rebuildWords();
+
+/* ---------------- Katalog laden ---------------- */
+function markCatalogReady() {
+  if (catalogReady) return;
+  catalogReady = true;
+  restoreRound();
+  updateActions();
+}
+let lastCatalogFetch = 0;
+async function loadKatalog() {
+  lastCatalogFetch = Date.now();
+  try {
+    const res = await fetch("katalog.json", { cache: "no-cache" });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    setCatalog(Array.isArray(data) ? data : data.items);
+    // Neue Fundstücke seit dem letzten Besuch melden
+    const ids = CATALOG.map(it => it.id);
+    if (Array.isArray(prefs.seenItems)) {
+      const fresh = ids.filter(id => !prefs.seenItems.includes(id));
+      if (fresh.length) { $("museum-dot").hidden = false; toast(fresh.length === 1 ? "Neu im Museum: 1 Fundstück wartet auf dich" : `Neu im Museum: ${fresh.length} Fundstücke warten auf dich`); }
+    }
+    prefs.seenItems = ids; savePrefs();
+  } catch (e) {
+    if (!CATALOG.length) toast("Die Sammlung konnte nicht geladen werden. Prüf die Internetverbindung.");
+  }
+  museumDirty = true;
+  updateProgressChip();
+  if (currentView === "museum") renderMuseum();
+  if (catalogReady) updateActions(); else markCatalogReady();
+}
+// Beim Zurückkehren in die App nach neuen Inhalten schauen (höchstens alle 10 Minuten)
+document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - lastCatalogFetch > 600000) loadKatalog(); });
+
+/* ---------------- Start ---------------- */
+async function restoreRound() {
+  const cur = save.current;
+  const it = cur && BY_ID[cur.itemId];
+  if (!it) {
+    // Fundstück wurde gelöscht, bevor das Los gerubbelt war: Münzen zurück
+    if (cur && !cur.saved) { save.current = null; addCoins(cur.gold ? COST.gold : COST.normal); toast("Ein Fundstück wurde entfernt. Deine Münzen sind zurück."); }
+    return showIdleTicket();
+  }
+  state = "dealing";
+  if (cur.saved) {
+    await prepareTicket(it, cur.seq, true, cur.gold);
+    showPlatePost(it, save.items[it.id], !!cur.isNew, false);
+    state = "revealed"; setButton(true);
+  } else {
+    showPlatePre(cur.gold);
+    await prepareTicket(it, cur.seq, false, cur.gold);
+    state = "scratch"; setButton(false);
+  }
+}
+
+buildSilver();
+resetMask();
+updateProgressChip();
+updateCoinUI();
+showIdleTicket();
+showView("learn");
+loadKatalog();
+// Silberschicht nach dem Laden der Schrift einmal neu prägen (Inhalt der Maske bleibt erhalten)
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { buildSilver(); render(performance.now()); });
+document.addEventListener("visibilitychange", () => { if (document.hidden) persistLocal(); });
+window.addEventListener("pagehide", persistLocal);
+
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch (e) {}
+}
+window.__rm = { get state() { return state; }, get save() { return save; }, reveal, drawItem, addCoins, today, buildDaily, checkWrite, WORDS };
+})();
+</script>
+</body>
+</html>
