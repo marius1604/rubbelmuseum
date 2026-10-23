@@ -985,21 +985,22 @@ function showIdleTicket() {
   updateActions();
 }
 
-async function startNewTicket(gold) {
-  if (state === "dealing" || state === "scratch") return;
+async function startNewTicket(gold, forcedId) {
+  const forced = DEV && forcedId && BY_ID[forcedId];
+  if (state === "dealing" || (state === "scratch" && !forced)) return;
   const cost = gold ? COST.gold : COST.normal;
   if (!catalogReady) return;
-  if (!canAfford(cost)) { toast("Nicht genug Münzen. Im Lernen-Tab verdienst du neue."); return; }
+  if (!forced && !canAfford(cost)) { toast("Nicht genug Münzen. Im Lernen-Tab verdienst du neue."); return; }
   const prev = state;
   state = "dealing";
-  addCoins(-cost);
+  if (!forced) addCoins(-cost);
   setButton(false);
   activePointer = null;
   if (prev === "revealed" && !reduceMotion) {
     await ticketEl.animate([{ transform: "none", opacity: 1 }, { transform: "translateX(-38%) rotate(-7deg)", opacity: 0 }],
       { duration: 230, easing: "cubic-bezier(.5,0,.8,.4)", fill: "forwards" }).finished.catch(() => {});
   }
-  const it = drawItem(gold);
+  const it = forced || drawItem(gold);
   save.seq += 1;
   save.current = { seq: save.seq, itemId: it.id, saved: false, gold: !!gold };
   persist(); // Los ist festgelegt — Neuladen zieht nicht neu
@@ -1108,11 +1109,11 @@ function renderMuseum() {
   $("m-sub").textContent = t.finds ? `${fmtInt.format(t.finds)} ${t.finds === 1 ? "Fundstück" : "Fundstücke"} in ${t.found} ${t.found === 1 ? "Vitrine" : "Vitrinen"}` : "Rubbel dein erstes Los, dann füllt sich die erste Vitrine.";
 
   document.querySelectorAll(".sort").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sort === prefs.sort)));
-  const known = CATALOG.filter(it => save.items[it.id]);
-  const unknown = CATALOG.filter(it => !save.items[it.id]).sort((a, b) => a.nr - b.nr);
+  const known = CATALOG.filter(it => DEV || save.items[it.id]);
+  const unknown = CATALOG.filter(it => !DEV && !save.items[it.id]).sort((a, b) => a.nr - b.nr);
   const val = it => isPriceless(it) ? Infinity : it.value;
   const sorters = {
-    neu: (a, b) => save.items[b.id].last - save.items[a.id].last,
+    neu: (a, b) => ((save.items[b.id] || {}).last || 0) - ((save.items[a.id] || {}).last || 0) || a.nr - b.nr,
     wert: (a, b) => val(b) - val(a) || a.name.localeCompare(b.name, "de"),
     selten: (a, b) => RANK[b.rarity] - RANK[a.rarity] || val(b) - val(a),
     name: (a, b) => a.name.localeCompare(b.name, "de")
@@ -1120,7 +1121,7 @@ function renderMuseum() {
   known.sort(sorters[prefs.sort] || sorters.neu);
   const nr = it => "Nr. " + String(it.nr || 0).padStart(3, "0");
   $("grid").innerHTML = known.map(it => {
-    const e = save.items[it.id];
+    const e = save.items[it.id] || { n: 0 };
     return `<button class="item" data-rarity="${it.rarity}" data-id="${esc(it.id)}" aria-label="${esc(it.name)}, ${RBY[it.rarity].name}, ${e.n} Stück">
       <div class="item-art"><img src="${esc(imgSrc(it))}" alt="" loading="lazy" draggable="false">${e.n > 1 ? `<span class="count">×${e.n}</span>` : ""}</div>
       <div class="item-body"><span class="item-nr">${nr(it)}</span><span class="item-name">${esc(it.name)}</span>
@@ -1164,7 +1165,9 @@ function closeSheet() { $("sheet-root").innerHTML = ""; }
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
 
 function openDetail(id) {
-  const it = BY_ID[id], e = save.items[id]; if (!it || !e) return;
+  const it = BY_ID[id], found = save.items[id];
+  if (!it || (!found && !DEV)) return;
+  const e = found || { n: 0 };
   const total = isPriceless(it) ? "∞" : fmtEur(it.value * e.n);
   const sheet = openSheet(`
     <div class="detail-art" data-rarity="${it.rarity}"><img src="${esc(imgSrc(it))}" alt="${esc(it.name)}"></div>
@@ -1178,10 +1181,17 @@ function openDetail(id) {
       <div class="fact"><span>Im Museum</span><b>${e.n}×</b></div>
       <div class="fact"><span>Gesamtwert</span><b>${total}</b></div>
       <div class="fact"><span>Inventar</span><b>Nr. ${String(it.nr || 0).padStart(3, "0")}</b></div>
-      <div class="fact"><span>Erstfund</span><b>${fmtDate(e.first)}</b></div>
-      <div class="fact"><span>Zuletzt</span><b>${fmtDate(e.last)}</b></div>
+      <div class="fact"><span>Erstfund</span><b>${found ? fmtDate(e.first) : "–"}</b></div>
+      <div class="fact"><span>Zuletzt</span><b>${found ? fmtDate(e.last) : "–"}</b></div>
     </div>
+    ${DEV ? `<div class="section"><h3>Test</h3><p>Legt genau dieses Fundstück unter die Rubbelfläche. Kostet keine Münzen.</p>
+      <div class="row"><button class="btn" data-force="normal">Als Los ziehen</button><button class="btn secondary" data-force="gold">Als Goldlos ziehen</button></div></div>` : ""}
 `, it.name);
+  sheet.querySelectorAll("[data-force]").forEach(b => b.addEventListener("click", () => {
+    closeSheet();
+    showView("play");
+    startNewTicket(b.dataset.force === "gold", it.id);
+  }));
 }
 
 /* ---------------- Sicherung ---------------- */
