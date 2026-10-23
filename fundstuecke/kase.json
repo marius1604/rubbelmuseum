@@ -1,0 +1,8 @@
+{
+  "name": "Käse",
+  "image": "bilder/tiere-4.png",
+  "rarity": "gewoehnlich",
+  "haeufigkeit": "normal",
+  "value": 5,
+  "text": "Schmeckt besser als er riecht."
+}
