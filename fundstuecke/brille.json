@@ -1,0 +1,8 @@
+{
+  "name": "Brille",
+  "image": "bilder/tiere-7.png",
+  "rarity": "gewoehnlich",
+  "haeufigkeit": "normal",
+  "value": 120,
+  "text": "Hilfreich um Objekte oder Texte erkennen zu können."
+}
