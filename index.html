@@ -254,6 +254,23 @@ input[type=file] { display: none; }
 .accents button { min-width: 38px; height: 38px; border-radius: 8px; border: 0; background: var(--field); font: 500 1rem/1 var(--f-ui); padding: 0 8px; }
 .accents button:active { background: var(--sunken); }
 
+.q-sentence { font-size: clamp(1.45rem, 6.4vw, 1.8rem); line-height: 1.2; letter-spacing: -0.02em; }
+.q-instr { font-size: 1.15rem; font-weight: 500; letter-spacing: -0.01em; color: var(--ink-2); }
+.blank { display: inline-block; min-width: 2.2em; padding: 0 .15em; border-bottom: 2.5px solid var(--brass); color: var(--brass-ink); text-align: center; }
+.pairs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pair-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.pair { min-height: 52px; border: 0; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); padding: 8px 10px; font: 500 .95rem/1.2 var(--f-ui); overflow-wrap: anywhere; transition: background .15s ease, box-shadow .15s ease, opacity .2s ease; }
+.pair.sel { box-shadow: inset 0 0 0 2px var(--ink); }
+.pair.matched { background: var(--ok-soft); color: var(--ok); box-shadow: none; opacity: .75; cursor: default; }
+.pair.wrong { background: var(--bad-soft); color: var(--bad); box-shadow: inset 0 0 0 1.5px var(--bad); }
+.order-line { min-height: 64px; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2); padding: 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font: 500 1.05rem/1.3 var(--f-ui); }
+.order-line.right { background: var(--ok-soft); color: var(--ok); box-shadow: inset 0 0 0 1.5px var(--ok); padding: 14px; }
+.order-line.wrong { background: var(--bad-soft); color: var(--bad); box-shadow: inset 0 0 0 1.5px var(--bad); padding: 14px; }
+.order-ph { color: var(--ink-3); font-size: .9rem; padding: 0 4px; }
+.word-pool { display: flex; flex-wrap: wrap; gap: 8px; }
+.word { height: 42px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2), 0 1px 0 var(--line); font: 500 1rem/1 var(--f-ui); }
+.word.on { background: var(--ink); color: var(--on-ink); box-shadow: none; }
+.word:disabled { opacity: .2; box-shadow: inset 0 0 0 1px var(--line); cursor: default; }
 .fb { border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; animation: rise .28s cubic-bezier(.2,.8,.2,1) both; background: var(--surface); box-shadow: var(--shadow); }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 .fb-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 600 1.05rem/1.2 var(--f-ui); }
@@ -1325,6 +1342,20 @@ comment ça va ?|wie geht's?
 enchanté|sehr erfreut
 madame|Frau (Anrede)
 monsieur|Herr (Anrede)`],
+["Sätze: Kennenlernen", `Je m'appelle Marie.|Ich heiße Marie.
+Comment tu t'appelles ?|Wie heißt du?
+Comment vous appelez-vous ?|Wie heißen Sie?
+J'ai vingt ans.|Ich bin zwanzig Jahre alt.
+Quel âge as-tu ?|Wie alt bist du?
+J'habite à Berlin.|Ich wohne in Berlin.
+Tu habites où ?|Wo wohnst du?
+Je viens d'Allemagne.|Ich komme aus Deutschland.
+Je parle un peu français.|Ich spreche ein bisschen Französisch.
+Ravi de te rencontrer.|Schön, dich kennenzulernen.
+Et toi ?|Und du?
+À demain !|Bis morgen!
+Bonne journée !|Schönen Tag noch!
+Bonne soirée !|Schönen Abend noch!`],
 ["Familie", `la famille|die Familie
 la mère|die Mutter
 le père|der Vater
@@ -1377,6 +1408,34 @@ le jus|der Saft
 le petit-déjeuner|das Frühstück
 le déjeuner|das Mittagessen
 le dîner|das Abendessen`],
+["Restaurant & Café", `la carte|die Speisekarte / die Karte
+l'addition|die Rechnung
+le serveur|der Kellner
+la serveuse|die Kellnerin
+commander|bestellen
+le plat|das Gericht
+l'entrée|die Vorspeise / der Eingang
+le dessert|der Nachtisch / das Dessert
+la boisson|das Getränk
+le verre|das Glas
+la bouteille|die Flasche
+l'assiette|der Teller
+la fourchette|die Gabel
+le couteau|das Messer
+la cuillère|der Löffel
+réserver|reservieren
+le pourboire|das Trinkgeld`],
+["Sätze: Im Café", `Je voudrais un café, s'il vous plaît.|Ich hätte gern einen Kaffee, bitte.
+L'addition, s'il vous plaît.|Die Rechnung, bitte.
+Une table pour deux, s'il vous plaît.|Einen Tisch für zwei, bitte.
+J'ai faim.|Ich habe Hunger.
+J'ai soif.|Ich habe Durst.
+C'est délicieux !|Das ist köstlich!
+Je suis végétarien.|Ich bin Vegetarier.
+Qu'est-ce que vous me conseillez ?|Was empfehlen Sie mir?
+Je prends le plat du jour.|Ich nehme das Tagesgericht.
+Bon appétit !|Guten Appetit!
+On peut payer par carte ?|Kann man mit Karte zahlen?`],
 ["Zahlen", `un|eins
 deux|zwei
 trois|drei
@@ -1469,6 +1528,36 @@ vendredi|Freitag
 samedi|Samstag
 dimanche|Sonntag
 le week-end|das Wochenende`],
+["Monate & Jahreszeiten", `janvier|Januar
+février|Februar
+mars|März
+avril|April
+mai|Mai
+juin|Juni
+juillet|Juli
+août|August
+septembre|September
+octobre|Oktober
+novembre|November
+décembre|Dezember
+le printemps|der Frühling
+l'été|der Sommer
+l'automne|der Herbst
+l'hiver|der Winter`],
+["Uhrzeit", `Quelle heure est-il ?|Wie spät ist es?
+il est une heure|es ist ein Uhr
+il est deux heures|es ist zwei Uhr
+il est huit heures et quart|es ist Viertel nach acht
+il est trois heures et demie|es ist halb vier
+il est cinq heures moins le quart|es ist Viertel vor fünf
+midi|Mittag / zwölf Uhr mittags
+minuit|Mitternacht
+tôt|früh
+tard|spät
+en retard|zu spät / verspätet
+à l'heure|pünktlich
+une demi-heure|eine halbe Stunde
+un quart d'heure|eine Viertelstunde`],
 ["Wichtige Verben", `être|sein
 avoir|haben
 aller|gehen
@@ -1504,6 +1593,42 @@ chanter|singen
 courir|rennen / laufen
 regarder|anschauen / ansehen
 écouter|zuhören / hören`],
+["Sätze: Verständigung", `Je ne comprends pas.|Ich verstehe nicht.
+Vous pouvez répéter, s'il vous plaît ?|Können Sie das bitte wiederholen?
+Parlez plus lentement, s'il vous plaît.|Sprechen Sie bitte langsamer.
+Qu'est-ce que ça veut dire ?|Was bedeutet das?
+Je ne sais pas.|Ich weiß es nicht.
+Je suis désolé.|Es tut mir leid.
+Pas de problème.|Kein Problem.
+D'accord.|Einverstanden. / Okay.
+Bien sûr !|Natürlich!
+Peut-être.|Vielleicht.
+Tu parles anglais ?|Sprichst du Englisch?`],
+["Gefühle & Befinden", `avoir faim|Hunger haben
+avoir soif|Durst haben
+avoir peur|Angst haben
+j'ai froid|mir ist kalt
+j'ai chaud|mir ist warm
+être malade|krank sein
+en colère|wütend / sauer
+stressé|gestresst
+nerveux|nervös
+calme|ruhig
+surpris|überrascht
+amoureux|verliebt
+inquiet|besorgt
+la joie|die Freude
+s'ennuyer|sich langweilen`],
+["Sätze: Alltag", `Ça va ?|Alles gut? / Geht's dir gut?
+Je suis fatigué.|Ich bin müde.
+Je suis en retard.|Ich bin zu spät.
+J'aime beaucoup ça.|Das gefällt mir sehr.
+Je n'aime pas ça.|Das mag ich nicht.
+On y va ?|Gehen wir?
+Qu'est-ce que tu fais ce week-end ?|Was machst du am Wochenende?
+J'ai besoin d'aide.|Ich brauche Hilfe.
+Bonne chance !|Viel Glück!
+Joyeux anniversaire !|Alles Gute zum Geburtstag!`],
 ["Körper", `la tête|der Kopf
 le visage|das Gesicht
 l'œil|das Auge
@@ -1520,6 +1645,18 @@ le pied|der Fuß
 le dos|der Rücken
 le ventre|der Bauch
 le cœur|das Herz`],
+["Gesundheit", `le médecin|der Arzt / die Ärztin
+la pharmacie|die Apotheke
+le médicament|das Medikament
+la douleur|der Schmerz
+la fièvre|das Fieber
+le rhume|die Erkältung / der Schnupfen
+la toux|der Husten
+le rendez-vous|der Termin / die Verabredung
+l'urgence|der Notfall
+j'ai mal à la tête|ich habe Kopfschmerzen
+j'ai mal au ventre|ich habe Bauchschmerzen
+se reposer|sich ausruhen`],
 ["Kleidung", `les vêtements|die Kleidung
 le pantalon|die Hose
 la chemise|das Hemd
@@ -1535,6 +1672,32 @@ le t-shirt|das T-Shirt
 l'écharpe|der Schal
 les lunettes|die Brille
 le sac|die Tasche`],
+["Einkaufen & Geld", `l'argent|das Geld
+le prix|der Preis
+la caisse|die Kasse
+payer|bezahlen / zahlen
+coûter|kosten
+la monnaie|das Wechselgeld / das Kleingeld
+la carte bancaire|die Bankkarte / die EC-Karte
+en espèces|bar
+pas cher|günstig / billig
+le supermarché|der Supermarkt
+le panier|der Korb / der Einkaufskorb
+la taille|die Größe
+essayer|anprobieren / versuchen
+vendre|verkaufen
+les soldes|der Schlussverkauf / der Ausverkauf
+le reçu|der Kassenbon / die Quittung
+ouvert|geöffnet / offen
+fermé|geschlossen
+combien ça coûte ?|wie viel kostet das?`],
+["Sätze: Einkaufen", `Je regarde seulement.|Ich schaue nur.
+Je cherche une veste.|Ich suche eine Jacke.
+Vous avez une taille plus grande ?|Haben Sie das eine Nummer größer?
+C'est trop cher.|Das ist zu teuer.
+Je le prends.|Ich nehme es.
+Où est la caisse ?|Wo ist die Kasse?
+Vous avez un sac ?|Haben Sie eine Tüte?`],
 ["Eigenschaften", `grand|groß
 petit|klein
 bon|gut
@@ -1582,6 +1745,32 @@ le pont|die Brücke
 la plage|der Strand
 la mer|das Meer
 la montagne|der Berg`],
+["Reisen", `le voyage|die Reise
+le billet|die Fahrkarte / das Ticket
+la valise|der Koffer
+l'hôtel|das Hotel
+le passeport|der Reisepass
+la réservation|die Reservierung
+l'aéroport|der Flughafen
+le quai|der Bahnsteig
+le départ|die Abfahrt
+l'arrivée|die Ankunft
+à gauche|links / nach links
+à droite|rechts / nach rechts
+tout droit|geradeaus
+près d'ici|in der Nähe
+loin|weit / weit weg
+le plan|der Stadtplan / der Plan
+la carte postale|die Postkarte
+les vacances|die Ferien / der Urlaub`],
+["Sätze: Unterwegs", `Où est la gare ?|Wo ist der Bahnhof?
+C'est loin ?|Ist es weit?
+Je suis perdu.|Ich habe mich verlaufen.
+Un billet pour Paris, s'il vous plaît.|Eine Fahrkarte nach Paris, bitte.
+À quelle heure part le train ?|Wann fährt der Zug ab?
+Il y a des toilettes ici ?|Gibt es hier Toiletten?
+J'ai une réservation.|Ich habe eine Reservierung.
+Il fait beau aujourd'hui.|Heute ist schönes Wetter.`],
 ["Wetter & Natur", `le temps|das Wetter / die Zeit
 le soleil|die Sonne
 la pluie|der Regen
@@ -1598,6 +1787,59 @@ la fleur|die Blume
 la forêt|der Wald
 la rivière|der Fluss
 le lac|der See`],
+["Länder & Sprachen", `la France|Frankreich
+l'Allemagne|Deutschland
+l'Autriche|Österreich
+la Suisse|die Schweiz
+la Belgique|Belgien
+l'Italie|Italien
+l'Espagne|Spanien
+l'Angleterre|England
+les États-Unis|die USA / die Vereinigten Staaten
+l'Europe|Europa
+français|Französisch / französisch
+française|französisch (weiblich)
+allemand|Deutsch / deutsch
+allemande|deutsch (weiblich)
+anglais|Englisch / englisch
+italien|Italienisch / italienisch
+espagnol|Spanisch / spanisch`],
+["Berufe", `le métier|der Beruf
+l'infirmier|der Krankenpfleger
+l'infirmière|die Krankenpflegerin / die Krankenschwester
+le vendeur|der Verkäufer
+la vendeuse|die Verkäuferin
+l'étudiant|der Student
+l'étudiante|die Studentin
+le cuisinier|der Koch
+l'avocat|der Anwalt / die Avocado
+l'ingénieur|der Ingenieur
+le policier|der Polizist
+le boulanger|der Bäcker
+l'architecte|der Architekt / die Architektin
+le facteur|der Briefträger / der Postbote
+le chauffeur|der Fahrer
+l'artiste|der Künstler / die Künstlerin`],
+["Freizeit & Hobbys", `le temps libre|die Freizeit
+le sport|der Sport
+la musique|die Musik
+le film|der Film
+le cinéma|das Kino
+le théâtre|das Theater
+le musée|das Museum
+le concert|das Konzert
+le jeu|das Spiel
+la lecture|das Lesen
+la randonnée|die Wanderung / das Wandern
+le football|der Fußball
+la fête|die Party / das Fest
+nager|schwimmen
+danser|tanzen
+voyager|reisen
+cuisiner|kochen
+dessiner|zeichnen
+jouer de la guitare|Gitarre spielen
+faire du vélo|Fahrrad fahren`],
 ["Schule & Arbeit", `le livre|das Buch
 le cahier|das Heft
 le stylo|der Kugelschreiber / der Stift
@@ -1638,11 +1880,73 @@ comment|wie
 combien|wie viel`]
 ];
 
+// Lückensätze mit Verben im Präsens: Verb | Satz | richtige Form | Deutsch
+const GAPS = `être|Je ___ fatigué.|suis|Ich bin müde.
+être|Tu ___ français ?|es|Bist du Franzose?
+être|Elle ___ à la maison.|est|Sie ist zu Hause.
+être|Nous ___ amis.|sommes|Wir sind Freunde.
+être|Vous ___ prêts ?|êtes|Seid ihr bereit?
+être|Ils ___ en retard.|sont|Sie sind zu spät.
+avoir|J'___ un chat.|ai|Ich habe eine Katze.
+avoir|Tu ___ faim ?|as|Hast du Hunger?
+avoir|Il ___ vingt ans.|a|Er ist zwanzig Jahre alt.
+avoir|Nous ___ une voiture.|avons|Wir haben ein Auto.
+avoir|Vous ___ des enfants ?|avez|Haben Sie Kinder?
+avoir|Elles ___ peur.|ont|Sie haben Angst.
+aller|Je ___ à l'école.|vais|Ich gehe zur Schule.
+aller|Tu ___ bien ?|vas|Geht es dir gut?
+aller|On ___ au cinéma.|va|Wir gehen ins Kino.
+aller|Nous ___ à la plage.|allons|Wir gehen an den Strand.
+aller|Vous ___ à Paris ?|allez|Fahren Sie nach Paris?
+aller|Ils ___ au marché.|vont|Sie gehen auf den Markt.
+faire|Je ___ du sport.|fais|Ich mache Sport.
+faire|Qu'est-ce que tu ___ ?|fais|Was machst du?
+faire|Il ___ beau.|fait|Das Wetter ist schön.
+faire|Nous ___ la cuisine.|faisons|Wir kochen.
+faire|Vous ___ quoi ce soir ?|faites|Was machen Sie heute Abend?
+faire|Ils ___ du vélo.|font|Sie fahren Fahrrad.
+parler|Je ___ un peu français.|parle|Ich spreche ein bisschen Französisch.
+parler|Tu ___ anglais ?|parles|Sprichst du Englisch?
+parler|Vous ___ allemand ?|parlez|Sprechen Sie Deutsch?
+parler|Ils ___ trop vite.|parlent|Sie sprechen zu schnell.
+aimer|J'___ le chocolat.|aime|Ich mag Schokolade.
+aimer|Tu ___ la musique ?|aimes|Magst du Musik?
+aimer|Nous ___ voyager.|aimons|Wir reisen gern.
+habiter|J'___ à Berlin.|habite|Ich wohne in Berlin.
+habiter|Elle ___ en France.|habite|Sie wohnt in Frankreich.
+habiter|Vous ___ où ?|habitez|Wo wohnen Sie?
+manger|Nous ___ à midi.|mangeons|Wir essen mittags.
+manger|Tu ___ de la viande ?|manges|Isst du Fleisch?
+venir|Je ___ d'Allemagne.|viens|Ich komme aus Deutschland.
+venir|Tu ___ avec nous ?|viens|Kommst du mit uns?
+venir|Ils ___ demain.|viennent|Sie kommen morgen.
+vouloir|Je ___ un café.|veux|Ich will einen Kaffee.
+vouloir|Tu ___ venir ?|veux|Willst du kommen?
+vouloir|Elles ___ partir.|veulent|Sie wollen gehen.
+pouvoir|Je ___ t'aider.|peux|Ich kann dir helfen.
+pouvoir|Vous ___ répéter ?|pouvez|Können Sie das wiederholen?
+pouvoir|Nous ___ partir.|pouvons|Wir können gehen.
+prendre|Je ___ le bus.|prends|Ich nehme den Bus.
+prendre|Tu ___ un café ?|prends|Nimmst du einen Kaffee?
+prendre|Ils ___ le train.|prennent|Sie nehmen den Zug.`.split("\n").map(l => { const [v, s, a, de] = l.split("|"); return { v, s, a, de }; });
+const CONJ = {
+  "être": ["suis", "es", "est", "sommes", "êtes", "sont"], "avoir": ["ai", "as", "a", "avons", "avez", "ont"],
+  "aller": ["vais", "vas", "va", "allons", "allez", "vont"], "faire": ["fais", "fait", "faisons", "faites", "font"],
+  "parler": ["parle", "parles", "parlons", "parlez", "parlent"], "aimer": ["aime", "aimes", "aimons", "aimez", "aiment"],
+  "habiter": ["habite", "habites", "habitons", "habitez", "habitent"], "manger": ["mange", "manges", "mangeons", "mangez", "mangent"],
+  "venir": ["viens", "vient", "venons", "venez", "viennent"], "vouloir": ["veux", "veut", "voulons", "voulez", "veulent"],
+  "pouvoir": ["peux", "peut", "pouvons", "pouvez", "peuvent"], "prendre": ["prends", "prend", "prenons", "prenez", "prennent"]
+};
+// Nomen mit le/la/les (für „Artikel üben“; l' verrät das Geschlecht nicht)
+function artInfo(w) { const m = w && !w.phrase && /^(le|la|les) (.+)$/.exec(w.fr); return m ? { art: m[1], rest: m[2] } : null; }
+// Wörter eines Satzes ohne Satzzeichen (für „Sätze bauen“)
+function phraseTokens(fr) { return fr.replace(/[.!?,;:«»]/g, " ").split(/\s+/).filter(Boolean); }
+const BASE = { mc: 1, art: 1, gap: 1, pairs: 1, write: 3, order: 3 };
 const CUSTOM_THEME = "Meine Wörter";
 const BUILTIN = [];
 VOCAB.forEach(([theme, block]) => block.split("\n").forEach(line => {
   const [fr, de] = line.split("|").map(x => x && x.trim());
-  if (fr && de) BUILTIN.push({ id: "b:" + fr, fr, de, theme });
+  if (fr && de) BUILTIN.push({ id: "b:" + fr, fr, de, theme, phrase: theme.startsWith("Sätze") });
 }));
 let WORDS = [], WORD = {};
 function rebuildWords() {
@@ -1717,6 +2021,45 @@ function makeQs(mcIds, writeIds) {
     if (j > i) { const [q] = qs.splice(j, 1); qs.splice(i, 0, q); }
   }
   for (const q of qs) { q.d = randDir(); if (q.t === "mc") q.opts = makeOptions(q.w, q.d); }
+  return diversify(qs);
+}
+// Ersetzt einzelne Fragen durch andere Aufgabentypen. Leichte Fragen (1 Münze) bleiben leicht, schwere (3) bleiben schwer.
+function diversify(qs) {
+  const t = today();
+  const known = id => !!(W()[id] && W()[id].b >= 1);
+  // Nur Auswahlfragen zu bekannten Wörtern ersetzen (keine neuen Wörter, keine Sätze)
+  // Wiederholungen, die dadurch ausfallen, bleiben fällig und kommen in der nächsten Runde
+  const replaceable = i => qs[i].t === "mc" && WORD[qs[i].w] && !WORD[qs[i].w].phrase && known(qs[i].w);
+  // Sätze werden gebaut statt geschrieben
+  // (sehr kurze Sätze mit bis zu 3 Wörtern werden weiter geschrieben)
+  for (const q of qs) if (q.t === "write" && WORD[q.w] && WORD[q.w].phrase && phraseTokens(WORD[q.w].fr).length > 3) { q.t = "order"; q.d = "de2fr"; }
+  // Paare zuordnen (höchstens 1 pro Runde)
+  const pool = WORDS.filter(w => !w.phrase && known(w.id));
+  let idx = qs.findIndex((q, i) => replaceable(i));
+  if (idx >= 0 && pool.length >= 6 && rand() < 0.6) {
+    const keys = w => [...alts(w.fr), ...alts(w.de)].map(k => splitArt(looseKey(k), "de").core.replace(/^(le|la|les) |^l'/, ""));
+    const first = WORD[qs[idx].w], ids = [first.id], taken = new Set(keys(first));
+    const cand = shuffle(pool.slice()).sort((a, b) => W()[a.id].b - W()[b.id].b);
+    for (const w of cand) { if (ids.length >= 5) break; const ks = keys(w); if (!ids.includes(w.id) && !ks.some(k => taken.has(k))) { ks.forEach(k => taken.add(k)); ids.push(w.id); } }
+    if (ids.length === 5) qs[idx] = { t: "pairs", w: first.id, ids, lf: shuffle(ids.slice()), rd: shuffle(ids.slice()) };
+  }
+  // Lückensatz mit Verb (höchstens 1 pro Runde, nur bekannte Verben)
+  const gaps = GAPS.map((g, i) => i).filter(i => known("b:" + GAPS[i].v));
+  idx = qs.findIndex((q, i) => replaceable(i));
+  if (idx >= 0 && gaps.length && rand() < 0.6) {
+    const gi = gaps[Math.floor(rand() * gaps.length)], g = GAPS[gi];
+    qs[idx] = { t: "gap", w: "b:" + g.v, g: gi, opts: shuffle([g.a, ...shuffle([...new Set(CONJ[g.v])].filter(f => f !== g.a)).slice(0, 3)]) };
+  }
+  // Artikel üben (höchstens 2 pro Runde)
+  let n = 0;
+  qs.forEach((q, i) => { if (n < 2 && replaceable(i) && artInfo(WORD[q.w]) && rand() < 0.45) { q.t = "art"; q.opts = ["le", "la", "les"]; n++; } });
+  // Wörter für „Sätze bauen“ mischen
+  for (const q of qs) if (q.t === "order") {
+    const toks = phraseTokens(WORD[q.w].fr);
+    let mix = toks.map((_, i) => i);
+    for (let k = 0; k < 6; k++) { shuffle(mix); if (toks.length < 2 || mix.some((v, i) => toks[v] !== toks[i])) break; }
+    q.toks = mix.map(i => toks[i]);
+  }
   return qs;
 }
 function makeOptions(id, d) {
@@ -1764,7 +2107,9 @@ function buildPractice() {
   const ids = [...new Set(order)].slice(0, 10);
   while (ids.length < 10 && ids.length) ids.push(ids[ids.length % Math.max(1, new Set(ids).size)]);
   const half = shuffle(ids.slice());
-  return { kind: "practice", day: t, mult: 1, qs: makeQs(half.slice(0, 5), half.slice(5, 10)), i: 0, ans: [], earned: 0 };
+  diversify.practice = true;
+  try { return { kind: "practice", day: t, mult: 1, qs: makeQs(half.slice(0, 5), half.slice(5, 10)), i: 0, ans: [], earned: 0 }; }
+  finally { diversify.practice = false; }
 }
 
 /* ---------------- Antworten prüfen ---------------- */
@@ -1960,7 +2305,11 @@ function learnAction(act, el) {
   else if (act === "pause") { lastSummary = null; renderHome(); $("view-learn").scrollTop = 0; }
   else if (act === "next") nextQuestion();
   else if (act === "check") submitWrite();
-  else if (act === "opt") answerMc(el.dataset.id, el);
+  else if (act === "opt") answerOpt(el.dataset.id);
+  else if (act === "pair") tapPair(el.dataset.side, el.dataset.id);
+  else if (act === "pick") { if (orderUI && !orderUI.picked.includes(+el.dataset.ti)) { orderUI.picked.push(+el.dataset.ti); renderQuiz(); } }
+  else if (act === "unpick") { if (orderUI) { orderUI.picked.splice(+el.dataset.k, 1); renderQuiz(); } }
+  else if (act === "check-order") submitOrder();
   else if (act === "acc") { const inp = $("q-input"); if (!inp || inp.readOnly) return; const s0 = inp.selectionStart ?? inp.value.length, s1 = inp.selectionEnd ?? s0; inp.value = inp.value.slice(0, s0) + el.textContent + inp.value.slice(s1); inp.focus(); inp.setSelectionRange(s0 + 1, s0 + 1); $("q-check").disabled = !inp.value.trim(); }
   else if (act === "home") { lastSummary = null; renderLearn(); $("view-learn").scrollTop = 0; }
   else if (act === "go-play") { lastSummary = null; renderHome(); showView("play"); }
@@ -1969,39 +2318,105 @@ function learnAction(act, el) {
 }
 
 /* ---------------- Quiz ---------------- */
+let pairsUI = null, orderUI = null; // Zwischenstand bei „Paare“ und „Sätze bauen“ (nur im Speicher)
+function optsHtml(vals, label, correct, picked, answered) {
+  return `<div class="opts">${vals.map((v, k) => {
+    let cls = "";
+    if (answered) { if (v === correct) cls = "right"; else if (v === picked) cls = "wrong"; }
+    return `<button class="opt ${cls}" data-act="opt" data-id="${esc(v)}" ${answered ? "disabled" : ""}><kbd>${k + 1}</kbd><span>${esc(label(v))}</span></button>`;
+  }).join("")}</div>`;
+}
 function renderQuiz() {
   const r = save.round, q = r.qs[r.i], w = WORD[q.w];
-  if (!w) { r.ans[r.i] = { skip: true, ok: false, coins: 0 }; persist(); return nextQuestion(); }
+  const broken = !w || (q.t === "pairs" && (!q.ids || q.ids.some(id => !WORD[id]))) || (q.t === "gap" && !GAPS[q.g]) || (q.t === "art" && !artInfo(w)) || (q.t === "order" && !q.toks);
+  if (broken) { r.ans[r.i] = { skip: true, ok: false, coins: 0 }; persist(); return nextQuestion(); }
   const a = r.ans[r.i];
   const daily = r.kind === "daily";
+  const key = r.day + ":" + r.i;
   const prog = r.qs.map((_, k) => { const x = r.ans[k]; return `<i class="${x ? (x.skip ? "" : x.ok ? "ok" : "bad") : k === r.i ? "cur" : ""}"></i>`; }).join("");
-  const base = q.t === "mc" ? 1 : 3;
-  const promptText = q.d === "fr2de" ? w.fr : display(w.de);
-  const kind = q.t === "mc" ? (q.d === "fr2de" ? "Was heißt das?" : "Wie heißt das auf Französisch?") : (q.d === "fr2de" ? "Schreib es auf Deutsch" : "Schreib es auf Französisch");
-  const isNew = a ? !!a.wasNew : !W()[q.w];
-  const flag = q.d === "fr2de" ? "FR" : "DE";
-  let body;
-  if (q.t === "mc") {
-    const side = q.d === "fr2de" ? "de" : "fr";
-    body = `<div class="opts">${q.opts.map((id, k) => { const o = WORD[id]; if (!o) return ""; let cls = ""; if (a) { if (id === q.w) cls = "right"; else if (id === a.pick) cls = "wrong"; } return `<button class="opt ${cls}" data-act="opt" data-id="${esc(id)}" ${a ? "disabled" : ""}><kbd>${k + 1}</kbd><span>${esc(display(o[side]))}</span></button>`; }).join("")}</div>`;
-  } else {
-    const acc = q.d === "de2fr" ? ["é", "è", "ê", "à", "â", "ç", "ù", "û", "î", "ô", "ë", "ï", "œ", "’"] : ["ä", "ö", "ü", "ß"];
-    body = `<div class="write">
-      <input id="q-input" type="text" lang="${q.d === "de2fr" ? "fr" : "de"}" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" placeholder="${q.d === "de2fr" ? "auf Französisch …" : "auf Deutsch …"}" ${a ? `readonly class="${a.ok ? "right" : "wrong"}" value="${esc(a.given || "")}"` : ""}>
-      ${a ? "" : `<div class="accents">${acc.map(c => `<button data-act="acc" tabindex="-1">${c}</button>`).join("")}</div>
-      <button class="btn" id="q-check" data-act="check" disabled>Prüfen</button>`}
-    </div>`;
+  const isNew = q.t === "mc" && (a ? !!a.wasNew : !W()[q.w]);
+  let kind, prompt, promptCls = "q-word", sub, speakPrompt = "", body = "", fbLine = "", fbSpeak = w.fr;
+
+  if (q.t === "mc" || q.t === "write") {
+    kind = q.t === "mc" ? (q.d === "fr2de" ? "Was heißt das?" : "Wie heißt das auf Französisch?") : (q.d === "fr2de" ? "Schreib es auf Deutsch" : "Schreib es auf Französisch");
+    prompt = esc(q.d === "fr2de" ? w.fr : display(w.de));
+    if (w.phrase) promptCls = "q-word q-sentence";
+    sub = `${q.d === "fr2de" ? "Französisch" : "Deutsch"} · ${esc(w.theme)}`;
+    if (q.d === "fr2de") speakPrompt = speakBtn(w.fr);
+    fbLine = `<b>${esc(w.fr)}</b> = ${esc(display(w.de))}`;
+    if (q.t === "mc") {
+      const side = q.d === "fr2de" ? "de" : "fr";
+      body = optsHtml(q.opts.filter(id => WORD[id]), id => display(WORD[id][side]), q.w, a && a.pick, !!a);
+    } else {
+      const acc = q.d === "de2fr" ? ["é", "è", "ê", "à", "â", "ç", "ù", "û", "î", "ô", "ë", "ï", "œ", "’"] : ["ä", "ö", "ü", "ß"];
+      body = `<div class="write">
+        <input id="q-input" type="text" lang="${q.d === "de2fr" ? "fr" : "de"}" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" placeholder="${q.d === "de2fr" ? "auf Französisch …" : "auf Deutsch …"}" ${a ? `readonly class="${a.ok ? "right" : "wrong"}" value="${esc(a.given || "")}"` : ""}>
+        ${a ? "" : `<div class="accents">${acc.map(c => `<button data-act="acc" tabindex="-1">${c}</button>`).join("")}</div>
+        <button class="btn" id="q-check" data-act="check" disabled>Prüfen</button>`}
+      </div>`;
+    }
+  } else if (q.t === "art") {
+    const ai = artInfo(w);
+    kind = "Welcher Artikel?";
+    prompt = `<span class="blank">${a ? esc(ai.art) : "___"}</span>&nbsp;${esc(ai.rest)}`;
+    sub = `${esc(display(w.de))} · ${esc(w.theme)}`;
+    body = optsHtml(q.opts, v => v, ai.art, a && a.pick, !!a);
+    fbLine = `<b>${esc(w.fr)}</b> = ${esc(display(w.de))}`;
+  } else if (q.t === "gap") {
+    const g = GAPS[q.g], filled = g.s.replace("___", g.a);
+    kind = "Setz das Verb ein";
+    prompt = esc(g.s).replace("___", `<span class="blank">${a ? esc(g.a) : "___"}</span>`);
+    promptCls = "q-word q-sentence";
+    sub = `${esc(g.de)} · Verb: ${esc(g.v)}`;
+    body = optsHtml(q.opts, v => v, g.a, a && a.pick, !!a);
+    fbLine = `<b>${esc(filled)}</b><br>${esc(g.de)}`;
+    fbSpeak = filled;
+  } else if (q.t === "pairs") {
+    kind = "Finde die Paare";
+    prompt = "Tippe ein französisches und das passende deutsche Wort an.";
+    promptCls = "q-word q-instr";
+    sub = "5 Wörter, die du schon kennst";
+    if (!pairsUI || pairsUI.key !== key) pairsUI = { key, sel: null, done: [], miss: 0, flash: null };
+    const st = pairsUI, allDone = !!a;
+    const btn = (side, id) => {
+      const matched = allDone || st.done.includes(id);
+      const sel = st.sel && st.sel.side === side && st.sel.id === id;
+      const flash = st.flash && st.flash[side] === id;
+      const txt = side === "l" ? WORD[id].fr : display(WORD[id].de);
+      return `<button class="pair${matched ? " matched" : ""}${sel ? " sel" : ""}${flash ? " wrong" : ""}" data-act="pair" data-side="${side}" data-id="${esc(id)}" ${matched ? "disabled" : ""}>${esc(txt)}</button>`;
+    };
+    body = `<div class="pairs"><div class="pair-col">${q.lf.map(id => btn("l", id)).join("")}</div><div class="pair-col">${q.rd.map(id => btn("r", id)).join("")}</div></div>`;
+    fbSpeak = "";
+    fbLine = a ? (a.miss ? `${a.miss} ${a.miss === 1 ? "Fehlversuch" : "Fehlversuche"}${a.ok ? ", passt noch." : ". Ab 2 Fehlversuchen gibt es keine Münze."}` : "Alle Paare beim ersten Versuch.") : "";
+  } else if (q.t === "order") {
+    kind = "Bau den Satz auf Französisch";
+    prompt = esc(display(w.de));
+    promptCls = "q-word q-sentence";
+    sub = `Deutsch · ${esc(w.theme.replace(/^Sätze: /, "Sätze · "))}`;
+    if (!orderUI || orderUI.key !== key) orderUI = { key, picked: [] };
+    const st = orderUI;
+    if (a) {
+      body = `<div class="order-line ${a.ok ? "right" : "wrong"}">${esc(a.given)}</div>`;
+    } else {
+      body = `<div class="order-line" id="order-line">${st.picked.length ? st.picked.map((ti, k) => `<button class="word on" data-act="unpick" data-k="${k}">${esc(q.toks[ti])}</button>`).join("") : `<span class="order-ph">Tippe die Wörter in der richtigen Reihenfolge an</span>`}</div>
+      <div class="word-pool">${q.toks.map((tk, ti) => `<button class="word" data-act="pick" data-ti="${ti}" ${st.picked.includes(ti) ? "disabled" : ""}>${esc(tk)}</button>`).join("")}</div>
+      <button class="btn" id="q-check" data-act="check-order" ${st.picked.length === q.toks.length ? "" : "disabled"}>Prüfen</button>`;
+    }
+    fbLine = `<b>${esc(w.fr)}</b><br>${esc(display(w.de))}`;
   }
+
   let fb = "";
   if (a) {
-    const ansSide = q.d === "fr2de" ? "de" : "fr";
-    const title = a.ok ? ["Richtig", "Genau", "Très bien", "Richtig", "Parfait"][(r.i * 7 + q.w.length) % 5] : "Nicht ganz";
-    let picked = "";
-    if (!a.ok && q.t === "mc" && a.pick && WORD[a.pick]) { const p = WORD[a.pick]; picked = `<div class="fb-hint">„${esc(display(p[ansSide]))}“ heißt ${q.d === "fr2de" ? "auf Französisch" : "auf Deutsch"}: ${esc(display(q.d === "fr2de" ? p.fr : p.de))}</div>`; }
+    const title = a.ok ? ["Richtig", "Genau", "Très bien", "Richtig", "Parfait"][(r.i * 7 + q.w.length) % 5] : (q.t === "pairs" ? "Geschafft" : "Nicht ganz");
+    let extra = "";
+    if (!a.ok && q.t === "mc" && a.pick && WORD[a.pick]) {
+      const p = WORD[a.pick], ansSide = q.d === "fr2de" ? "de" : "fr";
+      extra = `<div class="fb-hint">„${esc(display(p[ansSide]))}“ heißt ${q.d === "fr2de" ? "auf Französisch" : "auf Deutsch"}: ${esc(display(q.d === "fr2de" ? p.fr : p.de))}</div>`;
+    }
     fb = `<div class="fb ${a.ok ? "ok" : "bad"}">
       <div class="fb-title"><span>${title}</span>${a.ok && daily ? `<span class="fb-coins">+${fmtCoin(a.coins)} ${COIN_SVG}</span>` : ""}</div>
-      <div class="fb-ans">${speakBtn(w.fr, true)}<div><b>${esc(w.fr)}</b> = ${esc(display(w.de))}</div></div>
-      ${a.hint ? `<div class="fb-hint">${esc(a.hint)}</div>` : ""}${picked}
+      ${fbLine ? `<div class="fb-ans">${fbSpeak ? speakBtn(fbSpeak, true) : ""}<div>${fbLine}</div></div>` : ""}
+      ${a.hint ? `<div class="fb-hint">${esc(a.hint)}</div>` : ""}${extra}
       <button class="btn" id="q-next" data-act="next">${r.i >= r.qs.length - 1 ? "Ergebnis ansehen" : "Weiter"}</button>
     </div>`;
   }
@@ -2009,9 +2424,9 @@ function renderQuiz() {
     <div class="q-top"><button class="q-close" data-act="pause" aria-label="Pause">${closeIcon}</button><div class="q-prog">${prog}</div>
       ${daily ? `<span class="q-earn">${COIN_SVG}+${fmtCoin(r.earned)}</span>` : `<span class="q-earn practice">Übung</span>`}</div>
     <div class="q-card">
-      <div class="q-meta"><span class="q-kind">${kind}</span>${isNew ? `<span class="q-badge new">Neues Wort</span>` : ""}${daily ? `<span class="q-badge rew">+${fmtCoin(round2(base * r.mult))}</span>` : ""}</div>
-      <div class="q-word"><span>${esc(promptText)}</span>${q.d === "fr2de" ? speakBtn(w.fr) : ""}</div>
-      <span class="q-theme">${flag === "FR" ? "Französisch" : "Deutsch"} · ${esc(w.theme)}</span>
+      <div class="q-meta"><span class="q-kind">${kind}</span>${isNew ? `<span class="q-badge new">Neues Wort</span>` : ""}${daily ? `<span class="q-badge rew">+${fmtCoin(round2(BASE[q.t] * r.mult))}</span>` : ""}</div>
+      <div class="${promptCls}"><span>${prompt}</span>${speakPrompt}</div>
+      <span class="q-theme">${sub}</span>
     </div>
     ${body}${fb}
   </div>`;
@@ -2030,12 +2445,17 @@ function renderQuiz() {
 function recordAnswer(ok, extra) {
   const r = save.round, q = r.qs[r.i];
   let coins = 0;
-  if (ok && r.kind === "daily") { coins = round2((q.t === "mc" ? 1 : 3) * r.mult); r.earned = round2(r.earned + coins); }
+  if (ok && r.kind === "daily") { coins = round2((BASE[q.t] || 1) * r.mult); r.earned = round2(r.earned + coins); }
   r.ans[r.i] = Object.assign({ ok, coins, wasNew: !W()[q.w] }, extra);
-  applyResult(q.w, ok);
+  // Nur Fragen, die die Bedeutung abfragen, zählen für die Lernkartei
+  if (q.t === "mc" || q.t === "write" || q.t === "order") applyResult(q.w, ok);
   if (coins) addCoins(coins); else persist();
   renderQuiz();
-  if (q.d === "de2fr" && canSpeak && ok) speak(WORD[q.w].fr);
+  if (canSpeak && ok) {
+    if ((q.t === "mc" || q.t === "write") && q.d === "de2fr") speak(WORD[q.w].fr);
+    else if (q.t === "order" || q.t === "art") speak(WORD[q.w].fr);
+    else if (q.t === "gap") speak(GAPS[q.g].s.replace("___", GAPS[q.g].a));
+  }
 }
 function answerMc(id) {
   const r = save.round; if (!r || r.ans[r.i]) return;
@@ -2043,6 +2463,36 @@ function answerMc(id) {
   const side = q.d === "fr2de" ? "de" : "fr";
   const ok = id === q.w || (WORD[id] && looseKey(WORD[id][side]) === looseKey(WORD[q.w][side]));
   recordAnswer(ok, { pick: id });
+}
+function answerOpt(v) {
+  const r = save.round; if (!r || r.ans[r.i]) return;
+  const q = r.qs[r.i];
+  if (q.t === "mc") return answerMc(v);
+  if (q.t === "art") return recordAnswer(v === artInfo(WORD[q.w]).art, { pick: v });
+  if (q.t === "gap") return recordAnswer(v === GAPS[q.g].a, { pick: v });
+}
+function tapPair(side, id) {
+  const r = save.round; if (!r || r.ans[r.i]) return;
+  const q = r.qs[r.i], st = pairsUI; if (!st || st.done.includes(id)) return;
+  st.flash = null;
+  if (!st.sel || st.sel.side === side) { st.sel = { side, id }; return renderQuiz(); }
+  const other = st.sel; st.sel = null;
+  if (other.id === id) {
+    st.done.push(id);
+    if (st.done.length === q.ids.length) return recordAnswer(st.miss <= 1, { miss: st.miss });
+  } else {
+    st.miss++;
+    st.flash = { [other.side]: other.id, [side]: id };
+    setTimeout(() => { if (pairsUI === st && st.flash) { st.flash = null; renderQuiz(); } }, 650);
+  }
+  renderQuiz();
+}
+function submitOrder() {
+  const r = save.round; if (!r || r.ans[r.i]) return;
+  const q = r.qs[r.i], st = orderUI; if (!st || st.picked.length !== q.toks.length) return;
+  const built = st.picked.map(i => q.toks[i]);
+  const ok = built.join(" ").toLowerCase() === phraseTokens(WORD[q.w].fr).join(" ").toLowerCase();
+  recordAnswer(ok, { given: built.join(" ") });
 }
 function submitWrite() {
   const r = save.round; if (!r || r.ans[r.i]) return;
@@ -2055,7 +2505,7 @@ document.addEventListener("keydown", e => {
   if (currentView !== "learn" || $("sheet-root").firstChild) return;
   if (/^[1-4]$/.test(e.key) && document.activeElement?.tagName !== "INPUT") {
     const r = save.round; const q = r && r.qs[r.i];
-    if (q && q.t === "mc" && !r.ans[r.i] && q.opts[+e.key - 1]) { e.preventDefault(); answerMc(q.opts[+e.key - 1]); }
+    if (q && q.opts && !r.ans[r.i] && q.opts[+e.key - 1]) { e.preventDefault(); answerOpt(q.opts[+e.key - 1]); }
     return;
   }
   if (e.key !== "Enter") return;
@@ -2070,7 +2520,7 @@ function nextQuestion() {
 function finishRound() {
   const r = save.round, t = today();
   const ok = r.ans.filter(x => x && x.ok).length;
-  const missed = [...new Set(r.qs.filter((q, k) => r.ans[k] && !r.ans[k].ok && !r.ans[k].skip).map(q => q.w))];
+  const missed = [...new Set(r.qs.filter((q, k) => r.ans[k] && !r.ans[k].ok && !r.ans[k].skip && q.t !== "pairs" && q.t !== "gap").map(q => q.w))];
   const sum = { kind: r.kind, ok, n: r.qs.length, earned: r.earned, missed, bonus: [] };
   if (r.kind === "daily") {
     const s = save.streak;
@@ -2321,7 +2771,7 @@ window.addEventListener("pagehide", persistLocal);
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
   try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch (e) {}
 }
-window.__rm = { get state() { return state; }, get save() { return save; }, reveal, drawItem, addCoins, today, buildDaily, checkWrite, WORDS };
+window.__rm = { get state() { return state; }, get save() { return save; }, reveal, drawItem, addCoins, today, buildDaily, buildPractice, checkWrite, get WORDS() { return WORDS; }, GAPS, artInfo, phraseTokens, renderLearn };
 })();
 </script>
 </body>
