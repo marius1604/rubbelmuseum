@@ -738,23 +738,42 @@ function drawItem(gold) {
   // 1. Stufe nach fester Chance ziehen (leere Stufen fallen weg, bis Objekte existieren)
   const tiers = drawTiers(gold);
   const tier = pickWeighted(tiers, r => tierWeight(r, gold));
-  // 2. Objekt innerhalb der Stufe
+  // 2. Objekt innerhalb der Stufe, nach wirksamer Häufigkeit (siehe itemOdds)
+  const odds = itemOdds(gold);
   const pool = CATALOG.filter(it => it.rarity === tier.id);
-  return pickWeighted(pool, itemWeight);
+  return pickWeighted(pool, it => odds[it.id].w);
 }
-// Gewicht eines Fundstücks innerhalb seiner Stufe: alle gleich, außer die Häufigkeit ist heruntergesetzt (der Wert spielt keine Rolle)
-function itemWeight(it) { return it.weight || 1; }
+// Chance jedes Fundstücks. Innerhalb einer Stufe sind alle gleich häufig, außer die Häufigkeit ist
+// heruntergesetzt. Untergrenze: Ein heruntergesetztes Stück wird nie seltener als das seltenste Stück
+// der nächsthöheren Stufe; nötigenfalls wird seine Häufigkeit angehoben (höchstens bis „normal“).
+function itemOdds(gold) {
+  const tiers = drawTiers(gold), sum = tiers.reduce((a, r) => a + tierWeight(r, gold), 0);
+  const res = {};
+  let floor = 0;
+  for (const r of tiers.slice().sort((a, b) => RANK[b.id] - RANK[a.id])) {
+    const T = tierWeight(r, gold) / sum;
+    const pool = CATALOG.filter(it => it.rarity === r.id);
+    const ws = pool.map(it => it.weight || 1);
+    const pAt = f => T * f / ws.reduce((a, w) => a + Math.max(w, f), 0);
+    let f = 0;
+    if (floor > 0 && Math.min(...ws) < 1) {
+      if (pAt(1) <= floor) f = 1;
+      else if (pAt(Math.min(...ws)) < floor) { let lo = 0, hi = 1; for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (pAt(m) < floor) lo = m; else hi = m; } f = hi; }
+    }
+    const eff = ws.map(w => Math.max(w, f)), tot = eff.reduce((a, x) => a + x, 0);
+    pool.forEach((it, i) => { res[it.id] = { p: T * eff[i] / tot, w: eff[i], raised: eff[i] > ws[i] + 1e-9 }; });
+    if (pool.length) floor = Math.min(...pool.map(it => res[it.id].p));
+  }
+  return res;
+}
 // Tatsächliche Chancen je Stufe und je Fundstück, für normales Los und Goldlos
 function computeOdds() {
-  const out = { tier: { normal: {}, gold: {} }, item: { normal: {}, gold: {} } };
+  const out = { tier: { normal: {}, gold: {} }, item: { normal: {}, gold: {} }, raised: { normal: {}, gold: {} } };
   for (const [key, gold] of [["normal", false], ["gold", true]]) {
     const tiers = drawTiers(gold), sum = tiers.reduce((a, r) => a + tierWeight(r, gold), 0);
-    for (const r of tiers) {
-      const pT = tierWeight(r, gold) / sum;
-      out.tier[key][r.id] = pT;
-      const pool = CATALOG.filter(it => it.rarity === r.id), wsum = pool.reduce((a, it) => a + itemWeight(it), 0);
-      for (const it of pool) out.item[key][it.id] = pT * itemWeight(it) / wsum;
-    }
+    for (const r of tiers) out.tier[key][r.id] = tierWeight(r, gold) / sum;
+    const odds = itemOdds(gold);
+    for (const [id, o] of Object.entries(odds)) { out.item[key][id] = o.p; out.raised[key][id] = o.raised; }
   }
   return out;
 }
@@ -2695,7 +2714,7 @@ function openDevPanel() {
   const rows = RARITIES.map(r => {
     const items = CATALOG.filter(it => it.rarity === r.id).sort((a, b) => (o.item.normal[b.id] || o.item.gold[b.id] || 0) - (o.item.normal[a.id] || o.item.gold[a.id] || 0));
     return `<tr class="tier"><td><span class="pill" data-rarity="${r.id}" style="font-size:.88rem">${r.name}</span> <span class="weight">${items.length}</span></td><td></td><td>${P(o.tier.normal[r.id])}</td><td>${P(o.tier.gold[r.id])}</td></tr>` +
-      items.map(it => `<tr class="sub"><td title="${esc(it.name)}">${esc(it.name)}${it.weight < 1 ? `<span class="weight">${WL[it.weight] || "×" + it.weight}</span>` : ""}</td><td>${isPriceless(it) ? "∞" : fmtInt.format(it.value) + " €"}</td><td>${P(o.item.normal[it.id])}</td><td>${P(o.item.gold[it.id])}</td></tr>`).join("");
+      items.map(it => `<tr class="sub"><td title="${esc(it.name)}">${esc(it.name)}${it.weight < 1 ? `<span class="weight">${WL[it.weight] || "×" + it.weight}${o.raised.normal[it.id] || o.raised.gold[it.id] ? " · angehoben" : ""}</span>` : ""}</td><td>${isPriceless(it) ? "∞" : fmtInt.format(it.value) + " €"}</td><td>${P(o.item.normal[it.id])}</td><td>${P(o.item.gold[it.id])}</td></tr>`).join("");
   }).join("");
   const sheet = openSheet(`<h2>Entwicklermodus</h2>
     <p style="margin-top:6px">Test-Spielstand${DEV_DAY ? ` · simulierter Tag +${DEV_DAY}` : ""}. Tages- und Übungsrunde sind unbegrenzt und bringen jedes Mal Münzen.</p>
@@ -2707,7 +2726,7 @@ function openDevPanel() {
     </div>
     <div class="section">
       <h3>Chancen pro Los</h3>
-      <p>So wahrscheinlich ist jede Seltenheit und jedes Fundstück im Moment. Stufen ohne Fundstück fallen weg, ihre Chance verteilt sich auf die anderen. Innerhalb einer Stufe sind alle Stücke gleich häufig, außer du hast bei einem die Häufigkeit heruntergesetzt. Der Wert spielt keine Rolle.</p>
+      <p>So wahrscheinlich ist jede Seltenheit und jedes Fundstück im Moment. Stufen ohne Fundstück fallen weg, ihre Chance verteilt sich auf die anderen. Innerhalb einer Stufe sind alle Stücke gleich häufig, außer du hast bei einem die Häufigkeit heruntergesetzt. Der Wert spielt keine Rolle. Ein heruntergesetztes Stück wird aber nie seltener als das seltenste Stück der nächsthöheren Stufe; dann steht „angehoben“ dabei.</p>
       <div style="overflow-x:auto"><table class="odds dev-table"><thead><tr><th>Stück</th><th>Wert</th><th>Los</th><th>Goldlos</th></tr></thead><tbody>${rows}</tbody></table></div>
       <p class="hint">Grundwerte: Gewöhnlich 50 · Ungewöhnlich 28 · Selten 15 · Episch 5 · Legendär 1,8 · Mythisch 0,2. Beim Goldlos fällt Gewöhnlich weg, und ab Selten zählt jede Stufe doppelt.</p>
     </div>
