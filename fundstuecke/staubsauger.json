@@ -1,0 +1,8 @@
+{
+  "name": "Staubsauger",
+  "image": "bilder/tiere-12-1.png",
+  "rarity": "ungewoehnlich",
+  "haeufigkeit": "normal",
+  "value": 229,
+  "text": "Ernährt sich ausschließlich von Staub und verschluckten Kleinteilen."
+}
