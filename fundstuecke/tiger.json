@@ -1,0 +1,8 @@
+{
+  "name": "Tiger",
+  "image": "bilder/tiere-24.png",
+  "rarity": "episch",
+  "haeufigkeit": "normal",
+  "value": 25000,
+  "text": "Die größte Raubkatze der Welt. Streifenmuster inklusive, Tarnmodus standardmäßig aktiviert."
+}
