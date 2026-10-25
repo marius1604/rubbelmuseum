@@ -1,0 +1,8 @@
+{
+  "name": "Armbanduhr",
+  "image": "bilder/tiere-22.png",
+  "rarity": "selten",
+  "haeufigkeit": "normal",
+  "value": 600,
+  "text": "Zeigt die Zeit an, als wäre sie etwas besonders Wertvolles."
+}
