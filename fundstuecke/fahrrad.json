@@ -1,0 +1,8 @@
+{
+  "name": "Fahrrad",
+  "image": "bilder/tiere-3-1.png",
+  "rarity": "gewoehnlich",
+  "haeufigkeit": "sehr-selten",
+  "value": 250,
+  "text": "Zwei Räder, eine Klingel und unzählige Ausreden, das Auto stehen zu lassen."
+}
