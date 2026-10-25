@@ -1,0 +1,8 @@
+{
+  "name": "Schallplatte",
+  "image": "bilder/tiere-38.png",
+  "rarity": "ungewoehnlich",
+  "haeufigkeit": "seltener",
+  "value": 25,
+  "text": "Tausende feine Rillen voller Musik. Funktioniert ganz ohne WLAN."
+}
