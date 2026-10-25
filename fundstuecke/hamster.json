@@ -1,0 +1,8 @@
+{
+  "name": "Hamster",
+  "image": "bilder/tiere-32.png",
+  "rarity": "gewoehnlich",
+  "haeufigkeit": "sehr-selten",
+  "value": 30,
+  "text": "Passt in eine Hand, stopft Vorräte in die Backen und rennt freiwillig im Kreis."
+}
