@@ -1,0 +1,8 @@
+{
+  "name": "Motorrad",
+  "image": "bilder/tiere-35.png",
+  "rarity": "selten",
+  "haeufigkeit": "deutlich-seltener",
+  "value": 4000,
+  "text": "Zwei Räder, ein Motor und die feste Überzeugung, dass Fahrtwind glücklich macht."
+}
