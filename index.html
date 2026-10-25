@@ -114,8 +114,23 @@ h1, h2, h3 { text-wrap: balance; }
 .i-moon { display: block; } .i-sun { display: none; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .i-moon { display: none; } :root:not([data-theme="light"]) .i-sun { display: block; } }
 :root[data-theme="dark"] .i-moon { display: none; } :root[data-theme="dark"] .i-sun { display: block; }
+.menu { gap: 0; padding: 4px 16px; }
+.switch-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; cursor: pointer; }
+.switch-row + .switch-row { border-top: 1px solid var(--line); }
+.switch-row .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.switch-row b { font-weight: 600; font-size: .98rem; }
+.switch-row small { font-size: .82rem; color: var(--ink-2); }
+.sw-ico { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-ink); display: grid; place-items: center; flex: none; }
+.sw-ico svg { width: 18px; height: 18px; }
+.switch { appearance: none; -webkit-appearance: none; width: 48px; height: 28px; border-radius: 28px; background: var(--line-2); position: relative; flex: none; margin: 0; cursor: pointer; transition: background .2s ease; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s ease; }
+.switch:checked { background: var(--accent); }
+.switch:checked::after { transform: translateX(20px); }
+.switch:disabled { opacity: .4; cursor: default; }
 .dev-chip { border: 0; height: 24px; padding: 0 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-ink); font: 600 .72rem/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; }
-.brand { cursor: default; -webkit-user-select: none; user-select: none; }
+.brand { cursor: default; -webkit-user-select: none; user-select: none; min-width: 0; overflow: hidden; white-space: nowrap; }
+.topbar .chips { flex: none; }
+@media (max-width: 420px) { .chips { gap: 8px; } .theme-btn { width: 28px; } }
 .dev-table { table-layout: fixed; }
 .dev-table th, .dev-table td { white-space: nowrap; }
 .dev-table th:nth-child(2), .dev-table td:nth-child(2) { width: 62px; }
@@ -520,7 +535,7 @@ input[type=file] { display: none; }
         <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="var(--accent)"/><rect x="6" y="8.5" width="12" height="7" rx="1.6" fill="var(--bg)" opacity=".9"/><path d="M7.5 13.6c1.6-2 2.8.6 4.4-1.4s2.4 0 4-1.2" stroke="var(--accent)" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg>Rubbelmuseum</div>
         <div class="chips">
           <button class="dev-chip" data-dev-open hidden>Test</button>
-          <button class="theme-btn" data-theme-toggle aria-label="Tag- oder Nachtmodus"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+          <button class="theme-btn" data-menu aria-label="Menü"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
           <span class="chip chip-streak" id="chip-streak" title="Tage in Folge"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10.6 1.8c.4 3-1.6 4.4-3 6.1C6.3 9.4 5 11 5 13.3 5 16.2 7.3 18.5 10 18.5s5-2.2 5-5.1c0-2.4-1.3-3.9-2.2-4.9.1 1.4-.4 2.6-1.4 3.2.5-3.6-.3-6.9-.8-9.9z" fill="var(--flame)"/></svg><b id="streak-val">0</b></span>
           <span class="chip chip-coins" title="Münzen"><svg class="coin" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.6" fill="var(--brass)"/><circle cx="10" cy="10" r="5.7" fill="none" stroke="var(--coin-line)" stroke-width="1.3" opacity=".75"/></svg><b class="coin-val">0</b></span>
         </div>
@@ -579,7 +594,7 @@ input[type=file] { display: none; }
           <p id="m-sub">Jeder Fund bekommt hier seine Vitrine.</p>
         </div>
         <div class="m-actions">
-          <button class="icon-btn" data-theme-toggle aria-label="Tag- oder Nachtmodus"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+          <button class="icon-btn" data-menu aria-label="Menü"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
           <button class="icon-btn" id="btn-backup" aria-label="Spielstand sichern">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
           </button>
@@ -728,7 +743,7 @@ let catalogReady = false;
 // Lokal sichern, ohne den Stand als „neuer“ zu markieren (beim Verlassen der Seite)
 let saveLocked = false; // beim Zurücksetzen: nichts mehr zurückschreiben, bevor die Seite neu lädt
 function persistLocal() { if (saveLocked) return; try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
-const prefs = Object.assign({ sort: "neu" }, loadPrefs());
+const prefs = Object.assign({ sort: "neu", autoSpeak: true }, loadPrefs());
 try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
 
 /* ---------------- Ziehung ---------------- */
@@ -2487,10 +2502,10 @@ function recordAnswer(ok, extra) {
   if (q.t === "mc" || q.t === "write" || q.t === "order") applyResult(q.w, ok);
   if (coins) addCoins(coins); else persist();
   renderQuiz();
-  if (canSpeak && ok) {
-    if ((q.t === "mc" || q.t === "write") && q.d === "de2fr") speak(WORD[q.w].fr);
-    else if (q.t === "order" || q.t === "art") speak(WORD[q.w].fr);
-    else if (q.t === "gap") speak(GAPS[q.g].s.replace("___", GAPS[q.g].a));
+  // Nach jeder Auflösung das Französische vorlesen (richtig oder falsch), falls eingeschaltet
+  if (canSpeak && prefs.autoSpeak) {
+    if (q.t === "gap") speak(GAPS[q.g].s.replace("___", GAPS[q.g].a));
+    else if (q.t !== "pairs") speak(WORD[q.w].fr);
   }
 }
 function answerMc(id) {
@@ -2701,12 +2716,29 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && Da
 const darkMQ = matchMedia("(prefers-color-scheme: dark)");
 function isDark() { const t = document.documentElement.dataset.theme; return t ? t === "dark" : darkMQ.matches; }
 function syncThemeColor() { document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute("content", isDark() ? "#212226" : "#F8F5F6")); }
-document.querySelectorAll("[data-theme-toggle]").forEach(b => b.addEventListener("click", () => {
-  const next = isDark() ? "light" : "dark";
+function setTheme(dark) {
+  const next = dark ? "dark" : "light";
   document.documentElement.dataset.theme = next;
   try { localStorage.setItem("rubbelmuseum.theme", next); } catch (e) {}
   syncThemeColor();
-}));
+}
+function openMenu() {
+  const sheet = openSheet(`<h2>Einstellungen</h2>
+    <div class="section menu">
+      <label class="switch-row"><span class="sw-ico">${MOON_ICON}</span><span class="grow"><b>Nachtmodus</b><small>Anthrazit statt Weiß</small></span>
+        <input type="checkbox" class="switch" id="mn-dark" ${isDark() ? "checked" : ""}></label>
+      <label class="switch-row"><span class="sw-ico">${SPEAK_ICON}</span><span class="grow"><b>Automatisch vorlesen</b><small>${canSpeak ? "Liest nach jeder Antwort das Französische vor" : "Dieses Gerät unterstützt kein Vorlesen"}</small></span>
+        <input type="checkbox" class="switch" id="mn-speak" ${prefs.autoSpeak && canSpeak ? "checked" : ""} ${canSpeak ? "" : "disabled"}></label>
+    </div>`, "Einstellungen");
+  sheet.querySelector("#mn-dark").addEventListener("change", e => setTheme(e.target.checked));
+  sheet.querySelector("#mn-speak").addEventListener("change", e => {
+    prefs.autoSpeak = e.target.checked; savePrefs();
+    if (prefs.autoSpeak) speak("bonjour");
+    else try { speechSynthesis.cancel(); } catch (err) {}
+  });
+}
+const MOON_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+document.querySelectorAll("[data-menu]").forEach(b => b.addEventListener("click", openMenu));
 if (document.documentElement.dataset.theme) syncThemeColor();
 
 /* ---------------- Entwicklermodus ---------------- */
