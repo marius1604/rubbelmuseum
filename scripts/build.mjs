@@ -52,13 +52,42 @@ for (const it of items.filter(it => !it.nr).sort((a, b) => a._added - b._added |
 items.sort((a, b) => a.nr - b.nr);
 items.forEach(it => delete it._added);
 
+// Abzeichen: zwei Fundstücke ergeben ein Abzeichen. Jedes Fundstück gehört zu höchstens einem Abzeichen.
+const BADGE_DIR = join(ROOT, "abzeichen");
+const itemIds = new Set(items.map(it => it.id));
+const byName = Object.fromEntries(items.map(it => [it.name.toLowerCase(), it.id]));
+const refId = v => {
+  if (Array.isArray(v)) v = v[0];
+  if (v && typeof v === "object") v = v.path || v.name || v.id;
+  const s = String(v || "").trim();
+  const base = basename(s).replace(/\.json$/i, "");
+  return itemIds.has(base) ? base : byName[s.toLowerCase()] || null;
+};
+const badges = [], usedBy = {};
+for (const f of existsSync(BADGE_DIR) ? readdirSync(BADGE_DIR).filter(n => n.endsWith(".json")).sort() : []) {
+  let d;
+  try { d = JSON.parse(readFileSync(join(BADGE_DIR, f), "utf8")); } catch (e) { problems.push(`Abzeichen ${f}: keine gültige JSON-Datei`); continue; }
+  const name = String(d.name || "").trim();
+  let image = Array.isArray(d.image) ? d.image[0] : d.image;
+  image = typeof image === "string" ? image.trim().replace(/^\/+/, "") : "";
+  const a = refId(d.fund1), b = refId(d.fund2);
+  if (!name) { problems.push(`Abzeichen ${f}: Name fehlt`); continue; }
+  if (!a || !b) { problems.push(`Abzeichen ${f}: Fundstück nicht gefunden (${d.fund1} / ${d.fund2})`); continue; }
+  if (a === b) { problems.push(`Abzeichen ${f}: zweimal dasselbe Fundstück`); continue; }
+  const clash = [a, b].find(id => usedBy[id]);
+  if (clash) { problems.push(`Abzeichen ${f}: ${clash} steckt schon in ${usedBy[clash]}, übersprungen`); continue; }
+  usedBy[a] = usedBy[b] = name;
+  badges.push({ id: basename(f, ".json"), name, image, a, b, riddle: String(d.raetsel || "").trim() });
+}
+badges.sort((x, y) => x.name.localeCompare(y.name, "de"));
+
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });
 for (const f of ["index.html", "manifest.webmanifest"]) cpSync(join(ROOT, f), join(OUT, f));
 for (const d of ["icons", "bilder"]) if (existsSync(join(ROOT, d))) cpSync(join(ROOT, d), join(OUT, d), { recursive: true });
 const version = (process.env.GITHUB_SHA || String(Date.now())).slice(0, 12);
 writeFileSync(join(OUT, "sw.js"), readFileSync(join(ROOT, "sw.js"), "utf8").replace("__BUILD__", version));
-writeFileSync(join(OUT, "katalog.json"), JSON.stringify({ version, items }, null, 1));
+writeFileSync(join(OUT, "katalog.json"), JSON.stringify({ version, items, badges }, null, 1));
 
-console.log(`${items.length} Fundstücke in katalog.json · Version ${version}`);
+console.log(`${items.length} Fundstücke, ${badges.length} Abzeichen in katalog.json · Version ${version}`);
 if (problems.length) { console.log("Hinweise:\n  " + problems.join("\n  ")); }

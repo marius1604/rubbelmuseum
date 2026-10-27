@@ -70,3 +70,49 @@ content:
         label: Inventarnummer
         type: number
         description: Leer lassen, dann vergibt die App die nächste freie Nummer.
+
+  - name: abzeichen
+    label: Abzeichen
+    type: collection
+    path: abzeichen
+    format: json
+    filename: "{primary}.json"
+    view:
+      primary: name
+      fields: [name, fund1, fund2]
+    fields:
+      - name: name
+        label: Name
+        type: string
+        required: true
+      - name: image
+        label: Bild
+        type: image
+        required: true
+        description: Rundes Abzeichen, am besten PNG mit transparentem Hintergrund.
+        options:
+          extensions: [png, webp, jpg, jpeg, svg]
+          rename: safe
+      - name: fund1
+        label: Fundstück 1
+        type: reference
+        required: true
+        options:
+          collection: fundstuecke
+          value: "{path}"
+          label: "{name}"
+          search: name
+      - name: fund2
+        label: Fundstück 2
+        type: reference
+        required: true
+        options:
+          collection: fundstuecke
+          value: "{path}"
+          label: "{name}"
+          search: name
+      - name: raetsel
+        label: Rätsel (Französisch)
+        type: text
+        required: true
+        description: Erscheint als Hinweis, sobald jemand beide Fundstücke besitzt. Am besten mit Wörtern aus der App.

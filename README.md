@@ -44,6 +44,17 @@ Kennzeichen „TEST“ oben öffnest du die Werkzeuge: Münzen auffüllen, einen
 Test-Spielstand zurücksetzen und die genaue Chance jedes Fundstücks für Los und Goldlos.
 „Entwicklermodus verlassen“ bringt dich zurück zu deinem normalen Spielstand.
 
+## Abzeichen (Werkstatt)
+
+Im Museum gibt es neben den Vitrinen die **Werkstatt**. Dort legt man zwei Fundstücke zusammen;
+ein Versuch kostet 1 Münze, die Fundstücke werden nicht verbraucht. Passen sie zusammen, gibt es ein Abzeichen.
+Jedes Abzeichen bringt nach jeder Tagesrunde +1 Münze.
+
+Sobald jemand beide Stücke eines Abzeichens besitzt, erscheint in der Werkstatt dessen französisches Rätsel als Hinweis.
+
+Neues Abzeichen in Pages CMS: **Abzeichen → Neu**, dann Name, Bild, Fundstück 1, Fundstück 2 und das Rätsel auf Französisch eintragen.
+Jedes Fundstück darf nur in einem Abzeichen vorkommen. Im Entwicklermodus siehst du alle Kombinationen.
+
 ## An Freunde geben
 
 Einfach die Adresse schicken. Auf dem Handy lässt sich die App über

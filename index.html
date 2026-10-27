@@ -445,6 +445,51 @@ input[type=file] { display: none; }
 .item.unknown .item-name { color: var(--ink-3); font-weight: 500; }
 .m-note { color: var(--ink-3); font-size: .82rem; text-align: center; margin: 4px 0 0; }
 
+/* ---------- Werkstatt & Abzeichen ---------- */
+.mtabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--field); border-radius: 12px; }
+.mtab { position: relative; height: 38px; border: 0; border-radius: 9px; background: transparent; font: 600 .92rem/1 var(--f-ui); color: var(--ink-2); }
+.mtab[aria-pressed="true"] { background: var(--surface); color: var(--accent-ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.mtab .dot { position: absolute; top: 8px; right: 14px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.m-part { display: flex; flex-direction: column; gap: 20px; }
+.ws { background: var(--surface); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow); }
+.ws-bench { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+.ws-slot { border: 0; background: var(--field); border-radius: 14px; padding: 12px 8px; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-width: 0; }
+.ws-slot:active { transform: scale(.985); }
+.ws-empty { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--ink-3); font-size: .85rem; }
+.ws-empty svg { width: 26px; height: 26px; color: var(--accent); }
+.ws-art { --r: var(--r-gewoehnlich); width: 88px; height: 88px; border-radius: 12px; position: relative; overflow: hidden; display: block; flex: none;
+  background: radial-gradient(circle, #fff 0%, color-mix(in srgb, var(--r) 12%, #F3F1F2) 100%); }
+.ws-art img { position: absolute; inset: 0; margin: auto; width: 82%; height: 82%; object-fit: contain; }
+.ws-name { font-weight: 600; font-size: .9rem; text-align: center; overflow-wrap: anywhere; }
+.ws-plus { font: 500 1.4rem/1 var(--f-ui); color: var(--ink-3); }
+.ws-msg { font-size: .9rem; color: var(--ink-2); background: var(--field); border-radius: 10px; padding: 10px 12px; }
+.riddles { display: flex; flex-direction: column; gap: 8px; }
+.riddle { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border-radius: 14px; padding: 14px; box-shadow: var(--shadow); }
+.riddle .grow { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.riddle q { font: 500 1rem/1.35 var(--f-ui); font-style: italic; color: var(--ink); quotes: "« " " »"; }
+.riddle small { font-size: .78rem; color: var(--accent-ink); }
+.badge-mini { width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); font: 600 1.1rem/1 var(--f-mono); }
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 18px 10px; }
+.badge { border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; min-width: 0; }
+.badge b { font-weight: 600; font-size: .85rem; overflow-wrap: anywhere; }
+.badge-art { width: 84px; height: 84px; border-radius: 50%; position: relative; display: grid; place-items: center; }
+.badge.got .badge-art img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,.18)); }
+.badge.locked .badge-art { background: var(--sunken); box-shadow: inset 0 0 0 2px var(--line-2); }
+.badge.locked.hinted .badge-art { background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent); }
+.badge.locked b { color: var(--ink-3); font-weight: 500; }
+.badge.locked.hinted b { color: var(--accent-ink); }
+.badge-q { font: 500 1.6rem/1 var(--f-mono); color: var(--ink-3); }
+.hinted .badge-q { color: var(--accent-ink); }
+.pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 14px 10px; margin-top: 14px; }
+.pick { border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .82rem; font-weight: 500; text-align: center; min-width: 0; overflow-wrap: anywhere; }
+.badge-hero { width: 180px; height: 180px; margin: 4px auto 12px; }
+.badge-hero img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 10px 16px rgba(0,0,0,.2)); }
+.badge-hero.pop { animation: badgePop .7s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes badgePop { from { transform: scale(.3) rotate(-25deg); opacity: 0; } }
+.badge-combo { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; }
+.badge-combo > div { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .85rem; font-weight: 500; max-width: 110px; text-align: center; }
+.badge-combo .ws-art { width: 72px; height: 72px; }
+
 /* ---------- Blätter ---------- */
 .scrim { position: fixed; inset: 0; background: rgba(10,10,12,.42); z-index: 40; animation: fade .2s ease both; }
 @keyframes fade { from { opacity: 0; } }
@@ -600,6 +645,11 @@ input[type=file] { display: none; }
           </button>
         </div>
       </div>
+      <div class="mtabs" role="group" aria-label="Bereich">
+        <button class="mtab" data-mtab="sammlung" aria-pressed="true">Vitrinen</button>
+        <button class="mtab" data-mtab="werkstatt" aria-pressed="false">Werkstatt<span class="dot" id="werk-dot" hidden></span></button>
+      </div>
+      <div id="m-sammlung" class="m-part">
       <div class="stats" id="stats"></div>
       <div class="sortbar" role="group" aria-label="Sortieren">
         <button class="sort" data-sort="neu">Zuletzt entdeckt</button>
@@ -609,6 +659,8 @@ input[type=file] { display: none; }
       </div>
       <div class="grid" id="grid"></div>
       <p class="m-note" id="m-note"></p>
+      </div>
+      <div id="m-werkstatt" class="m-part" hidden></div>
     </div>
   </section>
 
@@ -685,7 +737,7 @@ const SAVE_KEY = DEV ? "rubbelmuseum.save.dev" : "rubbelmuseum.save";
 const PREF_KEY = "rubbelmuseum.prefs";
 function blankSave() {
   return { schema: 2, created: Date.now(), seq: 0, items: {}, current: null,
-    coins: 0, learn: { w: {}, custom: [] }, streak: { count: 0, last: -9 }, daily: { day: -9, done: false, practice: false, ok: 0, earned: 0 }, round: null };
+    coins: 0, badges: {}, learn: { w: {}, custom: [] }, streak: { count: 0, last: -9 }, daily: { day: -9, done: false, practice: false, ok: 0, earned: 0 }, round: null };
 }
 const num = (v, d = 0) => (typeof v === "number" && isFinite(v)) ? v : d;
 
@@ -705,6 +757,7 @@ function normalizeSave(raw) {
   // Lernen (ab Schema 2)
   s.coins = Math.max(0, Math.round(num(raw.coins) * 100) / 100);
   s.updated = num(raw.updated);
+  if (raw.badges && typeof raw.badges === "object") for (const [id, v] of Object.entries(raw.badges)) if (id) s.badges[id] = { at: num(v && v.at, Date.now()) };
   const L = raw.learn || {};
   if (L.w && typeof L.w === "object") for (const [id, st] of Object.entries(L.w)) {
     if (!st || typeof st !== "object") continue;
@@ -1112,6 +1165,12 @@ function reveal() {
   updateProgressChip();
   if (save.current.isNew) $("museum-dot").hidden = false;
   museumDirty = true;
+  // Zweites Stück eines Abzeichens gefunden: Rätsel wird in der Werkstatt sichtbar
+  const bd = save.current.isNew && badgeOf(it.id);
+  if (bd && !hasBadge(bd.id) && ownsItem(bd.a) && ownsItem(bd.b)) {
+    $("werk-dot").hidden = false; $("museum-dot").hidden = false;
+    setTimeout(() => toast("Neues Rätsel in der Werkstatt"), reduceMotion ? 0 : 900);
+  }
 }
 
 function celebrate(it) {
@@ -1217,7 +1276,7 @@ function showView(v) {
   }
   if (v === "play") { $("play-dot").hidden = true; updateActions(); }
   if (v === "learn") renderLearn();
-  if (v === "museum") { $("museum-dot").hidden = true; if (museumDirty) renderMuseum(); $("view-museum").scrollTop = 0; }
+  if (v === "museum") { $("museum-dot").hidden = true; if (museumDirty) renderMuseum(); setMuseumTab(prefs.mtab === "werkstatt" ? "werkstatt" : "sammlung"); $("view-museum").scrollTop = 0; }
 }
 $("tab-play").addEventListener("click", () => showView("play"));
 $("tab-learn").addEventListener("click", () => showView("learn"));
@@ -2285,7 +2344,7 @@ function untilMidnight() {
 function renderHome() {
   const t = today();
   const sToday = streakForToday(), mult = multFor(sToday), cur = streakCurrent();
-  const maxCoins = round2(20 * mult);
+  const maxCoins = round2(20 * mult) + badgeCount();
   const r = save.round;
   let hero;
   if (dailyDone()) {
@@ -2579,6 +2638,8 @@ function finishRound() {
     let bonus = 0;
     if (s.count % 7 === 0) { bonus += 10; sum.bonus.push(["Wochenbonus", 10, `${s.count} Tage in Folge`]); }
     if (s.count % 30 === 0) { bonus += 50; sum.bonus.push(["Monatsbonus", 50, `${s.count} Tage in Folge`]); }
+    const nb = badgeCount();
+    if (nb) { bonus += nb; sum.bonus.push(["Abzeichen-Bonus", nb, `${nb} ${nb === 1 ? "Abzeichen" : "Abzeichen"} in deiner Sammlung`]); }
     save.daily = { day: t, done: true, practice: false, ok, earned: round2(r.earned + bonus) };
     sum.streak = s.count; sum.mult = r.mult; sum.next = multFor(s.count + 1);
     save.round = null;
@@ -2604,7 +2665,7 @@ function renderSummary() {
         ${daily ? `<div><b>${COIN_SVG}${fmtCoin(s.earned)}</b><span>Münzen verdient</span></div>` : `<div><b>–</b><span>Übung ohne Münzen</span></div>`}
       </div>
       ${daily ? `<p>${s.streak} ${s.streak === 1 ? "Tag" : "Tage"} in Folge. Morgen gibt es ${fmtMult(s.next)} pro richtiger Antwort.</p>` : ""}
-      ${s.bonus.map(([n, v, d]) => `<div class="bonus">${COIN_SVG}<span><b>${n}: +${v} Münzen</b><br>${d}</span></div>`).join("")}
+      ${s.bonus.map(([n, v, d]) => `<div class="bonus">${COIN_SVG}<span><b>${n}: +${v} ${v === 1 ? "Münze" : "Münzen"}</b><br>${d}</span></div>`).join("")}
       ${s.missed.length ? `<div><span class="eyebrow">Zum Wiederholen</span><div class="miss" style="margin-top:8px">${s.missed.map(id => WORD[id]).filter(Boolean).map(w => `<div class="miss-row">${speakBtn(w.fr, true)}<div class="grow"><b>${esc(w.fr)}</b><span>${esc(display(w.de))}</span></div></div>`).join("")}</div></div>` : ""}
       <div class="btn-col">
         ${daily ? `<button class="btn" data-act="go-play">Lose kaufen</button>` : ""}
@@ -2694,6 +2755,7 @@ async function loadKatalog() {
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
     setCatalog(Array.isArray(data) ? data : data.items);
+    setBadges(data.badges);
     // Neue Fundstücke seit dem letzten Besuch melden
     const ids = CATALOG.map(it => it.id);
     if (Array.isArray(prefs.seenItems)) {
@@ -2706,11 +2768,112 @@ async function loadKatalog() {
   }
   museumDirty = true;
   updateProgressChip();
-  if (currentView === "museum") renderMuseum();
+  if (currentView === "museum") { renderMuseum(); renderWerkstatt(); }
   if (catalogReady) updateActions(); else markCatalogReady();
 }
 // Beim Zurückkehren in die App nach neuen Inhalten schauen (höchstens alle 10 Minuten)
 document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - lastCatalogFetch > 600000) loadKatalog(); });
+
+/* ---------------- Werkstatt & Abzeichen ---------------- */
+let BADGES = [];
+function setBadges(list) {
+  BADGES = (Array.isArray(list) ? list : []).filter(b => b && b.id && b.name && BY_ID[b.a] && BY_ID[b.b]).map(b => ({
+    id: String(b.id), name: String(b.name), image: String(b.image || ""), a: String(b.a), b: String(b.b), riddle: String(b.riddle || "")
+  }));
+}
+const ownsItem = id => DEV || !!save.items[id];
+const hasBadge = id => !!(save.badges && save.badges[id]);
+const badgeOf = itemId => BADGES.find(b => b.a === itemId || b.b === itemId);
+const badgeCount = () => BADGES.filter(b => hasBadge(b.id)).length;
+// Abzeichen, deren beide Stücke man besitzt, die aber noch nicht entdeckt sind (Rätsel sichtbar)
+const openRiddles = () => BADGES.filter(b => !hasBadge(b.id) && ownsItem(b.a) && ownsItem(b.b));
+let bench = { a: null, b: null }, benchMsg = null;
+
+function setMuseumTab(t) {
+  prefs.mtab = t; savePrefs();
+  document.querySelectorAll(".mtab").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.mtab === t)));
+  $("m-sammlung").hidden = t !== "sammlung";
+  $("m-werkstatt").hidden = t !== "werkstatt";
+  if (t === "werkstatt") { $("werk-dot").hidden = true; renderWerkstatt(); }
+}
+document.querySelectorAll(".mtab").forEach(b => b.addEventListener("click", () => setMuseumTab(b.dataset.mtab)));
+
+function slotHtml(id) {
+  const it = id && BY_ID[id];
+  if (!it) return `<span class="ws-empty">${PLUS_ICON}<span>Fundstück wählen</span></span>`;
+  return `<span class="ws-art" data-rarity="${it.rarity}"><img src="${esc(imgSrc(it))}" alt=""></span><span class="ws-name">${esc(it.name)}</span>`;
+}
+function renderWerkstatt() {
+  const el = $("m-werkstatt"); if (!el) return;
+  const n = badgeCount(), riddles = openRiddles();
+  const ready = bench.a && bench.b && bench.a !== bench.b;
+  const msg = benchMsg ? `<div class="ws-msg ${benchMsg.ok ? "ok" : ""}">${esc(benchMsg.text)}</div>` : "";
+  const wall = BADGES.map(b => hasBadge(b.id)
+    ? `<button class="badge got" data-badge="${esc(b.id)}"><span class="badge-art"><img src="${esc(imgSrc(b))}" alt="" loading="lazy"></span><b>${esc(b.name)}</b></button>`
+    : `<div class="badge locked${riddles.includes(b) ? " hinted" : ""}"><span class="badge-art"><span class="badge-q">?</span></span><b>${riddles.includes(b) ? "Rätsel offen" : "Unbekannt"}</b></div>`).join("");
+  el.innerHTML = `
+    <div class="ws">
+      <div class="ws-bench">
+        <button class="ws-slot" data-slot="a" aria-label="Erstes Fundstück wählen">${slotHtml(bench.a)}</button>
+        <span class="ws-plus" aria-hidden="true">+</span>
+        <button class="ws-slot" data-slot="b" aria-label="Zweites Fundstück wählen">${slotHtml(bench.b)}</button>
+      </div>
+      <button class="btn" id="ws-go" ${ready ? "" : "disabled"}>Kombinieren · ${COIN_SVG} 1</button>
+      ${msg}
+    </div>
+    ${riddles.length ? `<div class="section-title"><h2>Offene Rätsel</h2><span>${riddles.length}</span></div>
+      <div class="riddles">${riddles.map(b => `<div class="riddle"><span class="badge-mini">?</span><div class="grow"><q lang="fr">${esc(b.riddle || "…")}</q><small>Beide Stücke für dieses Abzeichen sind in deinem Museum.</small></div></div>`).join("")}</div>` : ""}
+    <div class="section-title"><h2>Abzeichen</h2><span>${n}/${BADGES.length}</span></div>
+    <p class="hint" style="margin-top:-6px">Jedes Abzeichen bringt dir nach jeder Tagesrunde +1 Münze${n ? `. Aktuell: +${n}` : ""}.</p>
+    ${BADGES.length ? `<div class="badges">${wall}</div>` : `<p class="m-note">Noch keine Abzeichen angelegt.</p>`}`;
+}
+$("m-werkstatt").addEventListener("click", e => {
+  const s = e.target.closest("[data-slot]"); if (s) return openBenchPicker(s.dataset.slot);
+  if (e.target.closest("#ws-go")) return combine();
+  const g = e.target.closest("[data-badge]"); if (g) openBadge(g.dataset.badge);
+});
+function openBenchPicker(slot) {
+  const other = slot === "a" ? bench.b : bench.a;
+  const list = CATALOG.filter(it => ownsItem(it.id) && it.id !== other).sort((x, y) => x.name.localeCompare(y.name, "de"));
+  const sheet = openSheet(`<h2>Fundstück wählen</h2>
+    ${list.length ? `<div class="pick-grid">${list.map(it => `<button class="pick" data-id="${esc(it.id)}"><span class="ws-art" data-rarity="${it.rarity}"><img src="${esc(imgSrc(it))}" alt="" loading="lazy"></span><span>${esc(it.name)}</span></button>`).join("")}</div>`
+      : `<p style="margin-top:8px">Du hast noch keine Fundstücke. Rubbel zuerst ein paar Lose frei.</p>`}`, "Fundstück wählen");
+  sheet.addEventListener("click", e => {
+    const b = e.target.closest(".pick"); if (!b) return;
+    bench[slot] = b.dataset.id; benchMsg = null; closeSheet(); renderWerkstatt();
+  });
+}
+function combine() {
+  const { a, b } = bench; if (!a || !b || a === b) return;
+  const badge = BADGES.find(x => (x.a === a && x.b === b) || (x.a === b && x.b === a));
+  if (badge && hasBadge(badge.id)) { benchMsg = { text: `Das ergibt „${badge.name}“, das hast du schon.` }; return renderWerkstatt(); }
+  if (!canAfford(1)) { benchMsg = { text: "Dir fehlt 1 Münze. Im Lernen-Tab verdienst du neue." }; return renderWerkstatt(); }
+  addCoins(-1);
+  if (!badge) { benchMsg = { text: "Die beiden passen nicht zusammen. Versuch eine andere Kombination." }; return renderWerkstatt(); }
+  save.badges[badge.id] = { at: Date.now() };
+  persist();
+  bench = { a: null, b: null }; benchMsg = null;
+  renderWerkstatt();
+  openBadge(badge.id, true);
+}
+function openBadge(id, isNew) {
+  const b = BADGES.find(x => x.id === id); if (!b || !hasBadge(id)) return;
+  const A = BY_ID[b.a], B = BY_ID[b.b];
+  const sheet = openSheet(`
+    <div class="badge-hero${isNew ? " pop" : ""}"><img src="${esc(imgSrc(b))}" alt="${esc(b.name)}"></div>
+    <div class="label-card" style="align-items:center;text-align:center">
+      <span class="eyebrow">${isNew ? "Neues Abzeichen" : "Abzeichen"}</span>
+      <h2 style="padding:0">${esc(b.name)}</h2>
+      ${b.riddle ? `<p lang="fr"><i>${esc(b.riddle)}</i></p>` : ""}
+    </div>
+    <div class="badge-combo">
+      ${[A, B].map(it => `<div><span class="ws-art" data-rarity="${it.rarity}"><img src="${esc(imgSrc(it))}" alt=""></span><span>${esc(it.name)}</span></div>`).join(`<span class="ws-plus">+</span>`)}
+    </div>
+    <div class="notice" style="margin-top:16px;text-align:center">Bringt dir nach jeder Tagesrunde +1 Münze. Mit ${badgeCount()} ${badgeCount() === 1 ? "Abzeichen" : "Abzeichen"} sind es jetzt +${badgeCount()}.</div>`, b.name);
+  if (isNew && !reduceMotion) toast(`Abzeichen „${b.name}“ entdeckt`);
+  return sheet;
+}
+const PLUS_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 
 /* ---------------- Tag/Nacht ---------------- */
 const darkMQ = matchMedia("(prefers-color-scheme: dark)");
@@ -2784,6 +2947,11 @@ function openDevPanel() {
       <p class="hint">„Nächster Tag“ springt einen Tag vor, z. B. um Serie, Wochen- und Monatsbonus zu testen.</p>
       <div class="row"><button class="btn secondary" id="dv-reset">Test-Spielstand zurücksetzen</button></div>
       <div id="dv-confirm"></div>
+    </div>
+    <div class="section">
+      <h3>Abzeichen</h3>
+      <p>Alle Kombinationen zum Prüfen. Im Test-Spielstand sind alle Fundstücke für die Werkstatt freigeschaltet.</p>
+      <table class="odds"><tbody>${BADGES.map(b => `<tr><td>${esc(b.name)}</td><td style="text-align:right;font-family:var(--f-ui)">${esc(BY_ID[b.a].name)} + ${esc(BY_ID[b.b].name)}</td></tr>`).join("") || `<tr><td>Noch keine Abzeichen angelegt.</td></tr>`}</tbody></table>
     </div>
     <div class="section">
       <h3>Chancen pro Los</h3>
