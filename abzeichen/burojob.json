@@ -1,0 +1,8 @@
+{
+  "name": "BÜROJOB",
+  "image": "bilder/tiere-56.png",
+  "image_grau": "bilder/tiere-57.png",
+  "fund1": "fundstuecke/papier.json",
+  "fund2": "fundstuecke/bueroklammer.json",
+  "raetsel": "La tâche la plus simple du monde : relier deux feuilles de papier."
+}
