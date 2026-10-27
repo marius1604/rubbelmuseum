@@ -1,0 +1,7 @@
+{
+  "name": "Nähkunst",
+  "image": "bilder/tiere-30.png",
+  "fund1": "fundstuecke/hochzeitskleid.json",
+  "fund2": "fundstuecke/nahmaschine.json",
+  "raetsel": "Une robe blanche, faite à la main."
+}
