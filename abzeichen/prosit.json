@@ -1,0 +1,8 @@
+{
+  "name": "PROSIT",
+  "image": "bilder/tiere-39-1.png",
+  "image_grau": "bilder/tiere-40-1.png",
+  "fund1": "fundstuecke/bierflasche.json",
+  "fund2": "fundstuecke/lederhose.json",
+  "raetsel": "Allez, viens ! On va à l’Oktoberfest !"
+}
