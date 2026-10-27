@@ -1,0 +1,8 @@
+{
+  "name": "WORLD TOUR",
+  "image": "bilder/tiere-45.png",
+  "image_grau": "bilder/tiere-46.png",
+  "fund1": "fundstuecke/band-shirt.json",
+  "fund2": "fundstuecke/gitarre.json",
+  "raetsel": "Je joue dans un groupe de musique !"
+}
