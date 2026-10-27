@@ -77,7 +77,9 @@ for (const f of existsSync(BADGE_DIR) ? readdirSync(BADGE_DIR).filter(n => n.end
   const clash = [a, b].find(id => usedBy[id]);
   if (clash) { problems.push(`Abzeichen ${f}: ${clash} steckt schon in ${usedBy[clash]}, übersprungen`); continue; }
   usedBy[a] = usedBy[b] = name;
-  badges.push({ id: basename(f, ".json"), name, image, a, b, riddle: String(d.raetsel || "").trim() });
+  let grey = Array.isArray(d.image_grau) ? d.image_grau[0] : d.image_grau;
+  grey = typeof grey === "string" ? grey.trim().replace(/^\/+/, "") : "";
+  badges.push({ id: basename(f, ".json"), name, image, grey, a, b, riddle: String(d.raetsel || "").trim() });
 }
 badges.sort((x, y) => x.name.localeCompare(y.name, "de"));
 

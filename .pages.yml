@@ -86,10 +86,17 @@ content:
         type: string
         required: true
       - name: image
-        label: Bild
+        label: Bild (farbig)
         type: image
         required: true
-        description: Rundes Abzeichen, am besten PNG mit transparentem Hintergrund.
+        description: Rundes Abzeichen, am besten PNG mit transparentem Hintergrund. Erscheint nach der richtigen Kombination.
+        options:
+          extensions: [png, webp, jpg, jpeg, svg]
+          rename: safe
+      - name: image_grau
+        label: Bild (ausgegraut)
+        type: image
+        description: Ist in der Werkstatt immer zu sehen, solange das Abzeichen noch nicht entdeckt ist. Leer lassen = die App macht das farbige Bild grau.
         options:
           extensions: [png, webp, jpg, jpeg, svg]
           rename: safe
