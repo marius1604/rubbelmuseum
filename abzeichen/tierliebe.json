@@ -1,0 +1,8 @@
+{
+  "name": "TIERLIEBE",
+  "image": "bilder/tiere-37-1.png",
+  "image_grau": "bilder/tiere-38-1.png",
+  "fund1": "fundstuecke/dackel.json",
+  "fund2": "fundstuecke/katze.json",
+  "raetsel": "Les deux meilleurs amis de l’homme."
+}
