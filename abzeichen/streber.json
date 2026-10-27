@@ -1,0 +1,8 @@
+{
+  "name": "STREBER",
+  "image": "bilder/tiere-47.png",
+  "image_grau": "bilder/tiere-48.png",
+  "fund1": "fundstuecke/brille.json",
+  "fund2": "fundstuecke/zauberwuerfel.json",
+  "raetsel": "J’ai l’air intelligent. Je suis intelligent aussi !"
+}
