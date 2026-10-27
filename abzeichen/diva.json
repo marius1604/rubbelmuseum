@@ -1,0 +1,8 @@
+{
+  "name": "DIVA",
+  "image": "bilder/tiere-51.png",
+  "image_grau": "bilder/tiere-52.png",
+  "fund1": "fundstuecke/perlenkette.json",
+  "fund2": "fundstuecke/designer-handtasche.json",
+  "raetsel": "Un accessoire au cou et à la main. Où est le tapis rouge ?"
+}
