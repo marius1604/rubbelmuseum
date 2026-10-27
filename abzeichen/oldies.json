@@ -1,0 +1,8 @@
+{
+  "name": "OLDIES",
+  "image": "bilder/tiere-41-1.png",
+  "image_grau": "bilder/tiere-42-1.png",
+  "fund1": "fundstuecke/schallplatte.json",
+  "fund2": "fundstuecke/vhs-kassette-geheim.json",
+  "raetsel": "Musique ou film ? Peu importe, mais c’est vieux !"
+}
