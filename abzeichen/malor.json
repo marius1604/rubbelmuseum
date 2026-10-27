@@ -1,0 +1,8 @@
+{
+  "name": "MALÖR",
+  "image": "bilder/tiere-43-1.png",
+  "image_grau": "bilder/tiere-44-1.png",
+  "fund1": "fundstuecke/spaghetti.json",
+  "fund2": "fundstuecke/t-shirt.json",
+  "raetsel": "La sauce tomate et les vêtements blancs ? Pas une bonne combinaison !"
+}
