@@ -1,0 +1,8 @@
+{
+  "name": "DRIVER",
+  "image": "bilder/tiere-53.png",
+  "image_grau": "bilder/tiere-54.png",
+  "fund1": "fundstuecke/lederhandschuhe.json",
+  "fund2": "fundstuecke/cap.json",
+  "raetsel": "Protection contre le soleil et contre les mains froides. C’est parti pour le road trip !"
+}
