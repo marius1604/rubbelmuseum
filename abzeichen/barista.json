@@ -1,6 +1,7 @@
 {
   "name": "BARISTA",
   "image": "bilder/tiere-32-1.png",
+  "image_grau": "bilder/tiere-35-1.png",
   "fund1": "fundstuecke/kaffee.json",
   "fund2": "fundstuecke/espressomaschine.json",
   "raetsel": "Tu travailles à Starbucks ?"
