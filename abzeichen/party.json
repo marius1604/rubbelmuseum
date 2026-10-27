@@ -1,0 +1,8 @@
+{
+  "name": "PARTY",
+  "image": "bilder/tiere-49.png",
+  "image_grau": "bilder/tiere-50.png",
+  "fund1": "fundstuecke/cocktail.json",
+  "fund2": "fundstuecke/zigarette.json",
+  "raetsel": "On boit et on fume toute la nuit !"
+}
