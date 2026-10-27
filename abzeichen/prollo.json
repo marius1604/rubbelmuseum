@@ -1,6 +1,7 @@
 {
   "name": "PROLLO",
-  "image": "bilder/tiere-24-1.png",
+  "image": "bilder/tiere-31-1.png",
+  "image_grau": "bilder/tiere-36-2.png",
   "fund1": "fundstuecke/armbanduhr.json",
   "fund2": "fundstuecke/sportwagen.json",
   "raetsel": "Bling-bling : une belle voiture et une montre de luxe."
