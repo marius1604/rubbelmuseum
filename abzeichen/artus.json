@@ -1,0 +1,8 @@
+{
+  "name": "ARTUS",
+  "image": "bilder/tiere-72.png",
+  "image_grau": "bilder/tiere-73.png",
+  "fund1": "fundstuecke/schwert.json",
+  "fund2": "fundstuecke/rustung.json",
+  "raetsel": "Un vrai chevalier !"
+}
