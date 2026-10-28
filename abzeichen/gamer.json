@@ -1,0 +1,8 @@
+{
+  "name": "GAMER",
+  "image": "bilder/tiere-63.png",
+  "image_grau": "bilder/tiere-64.png",
+  "fund1": "fundstuecke/gaming-pc.json",
+  "fund2": "fundstuecke/headset.json",
+  "raetsel": "Un ordinateur et un casque, tout ce qu’un vrai gamer a besoin."
+}
