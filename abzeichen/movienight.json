@@ -1,0 +1,8 @@
+{
+  "name": "MOVIENIGHT",
+  "image": "bilder/tiere-66.png",
+  "image_grau": "bilder/tiere-67.png",
+  "fund1": "fundstuecke/popcorn.json",
+  "fund2": "fundstuecke/kino-tickets.json",
+  "raetsel": "Sucré ou salé ? Ça dépend du film !"
+}
