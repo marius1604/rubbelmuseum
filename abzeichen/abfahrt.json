@@ -1,0 +1,8 @@
+{
+  "name": "ABFAHRT",
+  "image": "bilder/tiere-59.png",
+  "image_grau": "bilder/tiere-60.png",
+  "fund1": "fundstuecke/ski.json",
+  "fund2": "fundstuecke/helm.json",
+  "raetsel": "Attention, la sécurité d'abord dans la neige !"
+}
