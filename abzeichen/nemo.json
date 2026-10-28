@@ -1,0 +1,8 @@
+{
+  "name": "NEMO",
+  "image": "bilder/tiere-69.png",
+  "image_grau": "bilder/tiere-70.png",
+  "fund1": "fundstuecke/clownfisch.json",
+  "fund2": "fundstuecke/paletten-doktorfisch.json",
+  "raetsel": "Nous devons aller à Sydney !"
+}
