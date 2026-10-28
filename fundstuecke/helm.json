@@ -1,0 +1,8 @@
+{
+  "name": "Helm",
+  "image": "bilder/tiere-58.png",
+  "rarity": "gewoehnlich",
+  "haeufigkeit": "seltener",
+  "value": 40,
+  "text": "Ob auf dem Schulweg oder auf der Skipiste, ein unverzichtbarer Begleiter."
+}
