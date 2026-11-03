@@ -295,6 +295,14 @@ input[type=file] { display: none; }
 .order-line.wrong { background: var(--bad-soft); color: var(--bad); box-shadow: inset 0 0 0 1.5px var(--bad); padding: 14px; }
 .order-ph { color: var(--ink-3); font-size: .9rem; padding: 0 4px; }
 .word-pool { display: flex; flex-wrap: wrap; gap: 8px; }
+.word-pool.letters { gap: 6px; justify-content: center; }
+.word.letter { min-width: 42px; height: 46px; padding: 0 10px; font-size: 1.15rem; }
+.spell-line { min-height: 64px; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2); padding: 12px 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; justify-content: center; }
+.slot { width: 30px; height: 40px; border: 0; border-radius: 7px; background: var(--field); box-shadow: inset 0 -2px 0 var(--line-2); display: grid; place-items: center; font: 600 1.15rem/1 var(--f-ui); color: var(--ink); padding: 0; }
+.slot.next { box-shadow: inset 0 -2px 0 var(--accent); }
+.slot.filled { background: var(--accent-soft); color: var(--accent-ink); box-shadow: none; }
+.slot-gap { width: 12px; }
+.slot-fixed { font: 600 1.15rem/1 var(--f-ui); color: var(--ink-2); padding: 0 1px; }
 .word { height: 42px; padding: 0 14px; border: 0; border-radius: 10px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-2), 0 1px 0 var(--line); font: 500 1rem/1 var(--f-ui); }
 .word.on { background: var(--accent); color: var(--on-accent); box-shadow: none; }
 .word:disabled { opacity: .2; box-shadow: inset 0 0 0 1px var(--line); cursor: default; }
@@ -2050,7 +2058,8 @@ const CONJ = {
 function artInfo(w) { const m = w && !w.phrase && /^(le|la|les) (.+)$/.exec(w.fr); return m ? { art: m[1], rest: m[2] } : null; }
 // Wörter eines Satzes ohne Satzzeichen (für „Sätze bauen“)
 function phraseTokens(fr) { return fr.replace(/[.!?,;:«»]/g, " ").split(/\s+/).filter(Boolean); }
-const BASE = { mc: 1, art: 1, gap: 1, pairs: 1, write: 3, order: 3 };
+const BASE = { mc: 1, art: 1, gap: 1, pairs: 1, write: 3, order: 3, spell: 3 };
+const isTileChar = c => /[\p{L}\p{N}]/u.test(c);
 const CUSTOM_THEME = "Meine Wörter";
 const BUILTIN = [];
 VOCAB.forEach(([theme, block]) => block.split("\n").forEach(line => {
@@ -2141,9 +2150,15 @@ function diversify(qs) {
   // Nur Auswahlfragen zu bekannten Wörtern ersetzen (keine neuen Wörter, keine Sätze)
   // Wiederholungen, die dadurch ausfallen, bleiben fällig und kommen in der nächsten Runde
   const replaceable = i => qs[i].t === "mc" && WORD[qs[i].w] && !WORD[qs[i].w].phrase && known(qs[i].w);
-  // Sätze werden gebaut statt geschrieben
-  // (sehr kurze Sätze mit bis zu 3 Wörtern werden weiter geschrieben)
-  for (const q of qs) if (q.t === "write" && WORD[q.w] && WORD[q.w].phrase && phraseTokens(WORD[q.w].fr).length > 3) { q.t = "order"; q.d = "de2fr"; }
+  // Lernleiter für die schweren Fragen (3 Münzen), abhängig vom Fach in der Lernkartei:
+  //   neu bis Fach 2 → bauen (ab 3 Wörtern aus Wörtern, sonst aus Buchstaben), ab Fach 3 → schreiben.
+  //   Sätze mit mehr als 4 Wörtern werden immer gebaut, nie geschrieben.
+  for (const q of qs) if (q.t === "write" && WORD[q.w]) {
+    const w = WORD[q.w], n = phraseTokens(w.fr).length, box = W()[q.w] ? W()[q.w].b : 0;
+    if (n > 4 && w.phrase) q.t = "order";
+    else if (box < 3) q.t = n >= 3 ? "order" : "spell";
+    if (q.t !== "write") q.d = "de2fr";
+  }
   // Paare zuordnen (höchstens 1 pro Runde)
   const pool = WORDS.filter(w => !w.phrase && known(w.id));
   let idx = qs.findIndex((q, i) => replaceable(i));
@@ -2170,6 +2185,13 @@ function diversify(qs) {
     let mix = toks.map((_, i) => i);
     for (let k = 0; k < 6; k++) { shuffle(mix); if (toks.length < 2 || mix.some((v, i) => toks[v] !== toks[i])) break; }
     q.toks = mix.map(i => toks[i]);
+  }
+  // Buchstaben für „Wort bauen“ mischen (Leerzeichen, Apostroph, Bindestrich stehen fest)
+  for (const q of qs) if (q.t === "spell") {
+    const letters = [...WORD[q.w].fr].filter(isTileChar);
+    let mix = letters.slice();
+    for (let k = 0; k < 6; k++) { shuffle(mix); if (letters.length < 2 || mix.join("") !== letters.join("")) break; }
+    q.letters = mix;
   }
   return qs;
 }
@@ -2422,6 +2444,9 @@ function learnAction(act, el) {
   else if (act === "pick") { if (orderUI && !orderUI.picked.includes(+el.dataset.ti)) { orderUI.picked.push(+el.dataset.ti); renderQuiz(); } }
   else if (act === "unpick") { if (orderUI) { orderUI.picked.splice(+el.dataset.k, 1); renderQuiz(); } }
   else if (act === "check-order") submitOrder();
+  else if (act === "sp-pick") { if (spellUI && !spellUI.picked.includes(+el.dataset.ti)) { spellUI.picked.push(+el.dataset.ti); renderQuiz(); } }
+  else if (act === "sp-unpick") { if (spellUI) { spellUI.picked.splice(+el.dataset.k, 1); renderQuiz(); } }
+  else if (act === "check-spell") submitSpell();
   else if (act === "acc") { const inp = $("q-input"); if (!inp || inp.readOnly) return; const s0 = inp.selectionStart ?? inp.value.length, s1 = inp.selectionEnd ?? s0; inp.value = inp.value.slice(0, s0) + el.textContent + inp.value.slice(s1); inp.focus(); inp.setSelectionRange(s0 + 1, s0 + 1); $("q-check").disabled = !inp.value.trim(); }
   else if (act === "home") { lastSummary = null; renderLearn(); $("view-learn").scrollTop = 0; }
   else if (act === "go-play") { lastSummary = null; renderHome(); showView("play"); }
@@ -2430,7 +2455,7 @@ function learnAction(act, el) {
 }
 
 /* ---------------- Quiz ---------------- */
-let pairsUI = null, orderUI = null; // Zwischenstand bei „Paare“ und „Sätze bauen“ (nur im Speicher)
+let pairsUI = null, orderUI = null, spellUI = null; // Zwischenstand bei „Paare“ und „Sätze bauen“ (nur im Speicher)
 function optsHtml(vals, label, correct, picked, answered) {
   return `<div class="opts">${vals.map((v, k) => {
     let cls = "";
@@ -2440,7 +2465,7 @@ function optsHtml(vals, label, correct, picked, answered) {
 }
 function renderQuiz() {
   const r = save.round, q = r.qs[r.i], w = WORD[q.w];
-  const broken = !w || (q.t === "pairs" && (!q.ids || q.ids.some(id => !WORD[id]))) || (q.t === "gap" && !GAPS[q.g]) || (q.t === "art" && !artInfo(w)) || (q.t === "order" && !q.toks);
+  const broken = !w || (q.t === "pairs" && (!q.ids || q.ids.some(id => !WORD[id]))) || (q.t === "gap" && !GAPS[q.g]) || (q.t === "art" && !artInfo(w)) || (q.t === "order" && !q.toks) || (q.t === "spell" && !q.letters);
   if (broken) { r.ans[r.i] = { skip: true, ok: false, coins: 0 }; persist(); return nextQuestion(); }
   const a = r.ans[r.i];
   const daily = r.kind === "daily";
@@ -2515,6 +2540,29 @@ function renderQuiz() {
       <button class="btn" id="q-check" data-act="check-order" ${st.picked.length === q.toks.length ? "" : "disabled"}>Prüfen</button>`;
     }
     fbLine = `<b>${esc(w.fr)}</b><br>${esc(display(w.de))}`;
+  } else if (q.t === "spell") {
+    kind = "Bau das Wort auf Französisch";
+    prompt = esc(display(w.de));
+    if (w.phrase) promptCls = "q-word q-sentence";
+    sub = `Deutsch · ${esc(w.theme.replace(/^Sätze: /, "Sätze · "))}`;
+    if (!spellUI || spellUI.key !== key) spellUI = { key, picked: [] };
+    const st = spellUI;
+    if (a) {
+      body = `<div class="order-line ${a.ok ? "right" : "wrong"}">${esc(a.given)}</div>`;
+    } else {
+      // Feste Zeichen anzeigen, Buchstaben-Plätze der Reihe nach füllen
+      let k = 0;
+      const slots = [...w.fr].map(c => {
+        if (c === " ") return `<span class="slot-gap"></span>`;
+        if (!isTileChar(c)) return `<span class="slot-fixed">${esc(c)}</span>`;
+        const idx = k++, ti = st.picked[idx];
+        return ti === undefined ? `<span class="slot${idx === st.picked.length ? " next" : ""}"></span>` : `<button class="slot filled" data-act="sp-unpick" data-k="${idx}">${esc(q.letters[ti])}</button>`;
+      }).join("");
+      body = `<div class="spell-line">${slots}</div>
+      <div class="word-pool letters">${q.letters.map((c, ti) => `<button class="word letter" data-act="sp-pick" data-ti="${ti}" ${st.picked.includes(ti) ? "disabled" : ""}>${esc(c)}</button>`).join("")}</div>
+      <button class="btn" id="q-check" data-act="check-spell" ${st.picked.length === q.letters.length ? "" : "disabled"}>Prüfen</button>`;
+    }
+    fbLine = `<b>${esc(w.fr)}</b> = ${esc(display(w.de))}`;
   }
 
   let fb = "";
@@ -2560,7 +2608,7 @@ function recordAnswer(ok, extra) {
   if (ok && r.kind === "daily") { coins = round2((BASE[q.t] || 1) * r.mult); r.earned = round2(r.earned + coins); }
   r.ans[r.i] = Object.assign({ ok, coins, wasNew: !W()[q.w] }, extra);
   // Nur Fragen, die die Bedeutung abfragen, zählen für die Lernkartei
-  if (q.t === "mc" || q.t === "write" || q.t === "order") applyResult(q.w, ok);
+  if (q.t === "mc" || q.t === "write" || q.t === "order" || q.t === "spell") applyResult(q.w, ok);
   if (coins) addCoins(coins); else persist();
   renderQuiz();
   // Nach jeder Auflösung das Französische vorlesen (richtig oder falsch), falls eingeschaltet
@@ -2598,6 +2646,13 @@ function tapPair(side, id) {
     setTimeout(() => { if (pairsUI === st && st.flash) { st.flash = null; renderQuiz(); } }, 650);
   }
   renderQuiz();
+}
+function submitSpell() {
+  const r = save.round; if (!r || r.ans[r.i]) return;
+  const q = r.qs[r.i], st = spellUI; if (!st || st.picked.length !== q.letters.length) return;
+  let k = 0;
+  const built = [...WORD[q.w].fr].map(c => isTileChar(c) ? q.letters[st.picked[k++]] : c).join("");
+  recordAnswer(built.toLowerCase() === WORD[q.w].fr.toLowerCase(), { given: built });
 }
 function submitOrder() {
   const r = save.round; if (!r || r.ans[r.i]) return;
