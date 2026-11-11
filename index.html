@@ -747,7 +747,7 @@ const SAVE_KEY = DEV ? "rubbelmuseum.save.dev" : "rubbelmuseum.save";
 const PREF_KEY = "rubbelmuseum.prefs";
 function blankSave() {
   return { schema: 2, created: Date.now(), seq: 0, items: {}, current: null,
-    coins: 0, badges: {}, learn: { w: {}, custom: [] }, streak: { count: 0, last: -9 }, daily: { day: -9, done: false, practice: false, ok: 0, earned: 0 }, round: null };
+    coins: 0, badges: {}, learn: { w: {}, custom: [], alts: {} }, streak: { count: 0, last: -9 }, daily: { day: -9, done: false, practice: false, ok: 0, earned: 0 }, round: null };
 }
 const num = (v, d = 0) => (typeof v === "number" && isFinite(v)) ? v : d;
 
@@ -772,6 +772,13 @@ function normalizeSave(raw) {
   if (L.w && typeof L.w === "object") for (const [id, st] of Object.entries(L.w)) {
     if (!st || typeof st !== "object") continue;
     s.learn.w[id] = { b: Math.max(0, Math.min(5, Math.floor(num(st.b)))), due: num(st.due), last: num(st.last, -9), lastBad: num(st.lastBad, -9), intro: num(st.intro), ok: num(st.ok), bad: num(st.bad) };
+  }
+  // Eigene zusätzliche richtige Antworten: { wortId: { de: [...], fr: [...] } }
+  if (L.alts && typeof L.alts === "object") for (const [id, v] of Object.entries(L.alts)) {
+    if (!v || typeof v !== "object") continue;
+    const clean = k => Array.isArray(v[k]) ? v[k].filter(x => typeof x === "string" && x.trim()).map(x => x.trim().slice(0, 120)).slice(0, 10) : [];
+    const e = { de: clean("de"), fr: clean("fr") };
+    if (e.de.length || e.fr.length) s.learn.alts[id] = e;
   }
   if (Array.isArray(L.custom)) s.learn.custom = L.custom.filter(c => c && typeof c.id === "string" && typeof c.fr === "string" && typeof c.de === "string").map(c => ({ id: c.id, fr: c.fr, de: c.de }));
   if (raw.streak) s.streak = { count: Math.max(0, Math.floor(num(raw.streak.count))), last: num(raw.streak.last, -9) };
@@ -2283,7 +2290,8 @@ function checkWrite(word, dir, input) {
   if (!inS) return { ok: false, hint: "" };
   const inA = splitArt(inS, lang), inAL = splitArt(inL, lang);
   let best = null;
-  for (const alt of alts(target)) {
+  const own = ((save.learn.alts || {})[word.id] || {})[lang] || [];
+  for (const alt of [...alts(target), ...own]) {
     const aS = strictKey(alt), aL = looseKey(alt);
     const tA = splitArt(aS, lang), tAL = splitArt(aL, lang);
     const shown = alt.replace(/\s*\(.*?\)\s*/g, " ").trim();
@@ -2444,6 +2452,7 @@ function learnAction(act, el) {
   else if (act === "pick") { if (orderUI && !orderUI.picked.includes(+el.dataset.ti)) { orderUI.picked.push(+el.dataset.ti); renderQuiz(); } }
   else if (act === "unpick") { if (orderUI) { orderUI.picked.splice(+el.dataset.k, 1); renderQuiz(); } }
   else if (act === "check-order") submitOrder();
+  else if (act === "accept-alt") acceptAlt();
   else if (act === "sp-pick") { if (spellUI && !spellUI.picked.includes(+el.dataset.ti)) { spellUI.picked.push(+el.dataset.ti); renderQuiz(); } }
   else if (act === "sp-unpick") { if (spellUI) { spellUI.picked.splice(+el.dataset.k, 1); renderQuiz(); } }
   else if (act === "check-spell") submitSpell();
@@ -2567,7 +2576,7 @@ function renderQuiz() {
 
   let fb = "";
   if (a) {
-    const title = a.ok ? ["Richtig", "Genau", "Très bien", "Richtig", "Parfait"][(r.i * 7 + q.w.length) % 5] : (q.t === "pairs" ? "Geschafft" : "Nicht ganz");
+    const title = a.accepted ? "Als richtig gemerkt" : a.ok ? ["Richtig", "Genau", "Très bien", "Richtig", "Parfait"][(r.i * 7 + q.w.length) % 5] : (q.t === "pairs" ? "Geschafft" : "Nicht ganz");
     let extra = "";
     if (!a.ok && q.t === "mc" && a.pick && WORD[a.pick]) {
       const p = WORD[a.pick], ansSide = q.d === "fr2de" ? "de" : "fr";
@@ -2577,6 +2586,8 @@ function renderQuiz() {
       <div class="fb-title"><span>${title}</span>${a.ok && daily ? `<span class="fb-coins">+${fmtCoin(a.coins)} ${COIN_SVG}</span>` : ""}</div>
       ${fbLine ? `<div class="fb-ans">${fbSpeak ? speakBtn(fbSpeak, true) : ""}<div>${fbLine}</div></div>` : ""}
       ${a.hint ? `<div class="fb-hint">${esc(a.hint)}</div>` : ""}${extra}
+      ${a.accepted ? `<div class="fb-hint">Deine Antwort „${esc(a.given)}“ ist gemerkt und zählt ab jetzt als richtig.</div>` : ""}
+      ${q.t === "write" && !a.ok && a.given && !a.accepted ? `<button class="btn secondary" data-act="accept-alt">Meine Antwort stimmt auch${daily ? ` · +1 ${COIN_SVG}` : ""}</button>` : ""}
       <button class="btn" id="q-next" data-act="next">${r.i >= r.qs.length - 1 ? "Ergebnis ansehen" : "Weiter"}</button>
     </div>`;
   }
@@ -2607,6 +2618,7 @@ function recordAnswer(ok, extra) {
   let coins = 0;
   if (ok && r.kind === "daily") { coins = round2((BASE[q.t] || 1) * r.mult); r.earned = round2(r.earned + coins); }
   r.ans[r.i] = Object.assign({ ok, coins, wasNew: !W()[q.w] }, extra);
+  if (q.t === "write" && !ok) r.ans[r.i].prev = W()[q.w] ? Object.assign({}, W()[q.w]) : null;
   // Nur Fragen, die die Bedeutung abfragen, zählen für die Lernkartei
   if (q.t === "mc" || q.t === "write" || q.t === "order" || q.t === "spell") applyResult(q.w, ok);
   if (coins) addCoins(coins); else persist();
@@ -2645,6 +2657,23 @@ function tapPair(side, id) {
     st.flash = { [other.side]: other.id, [side]: id };
     setTimeout(() => { if (pairsUI === st && st.flash) { st.flash = null; renderQuiz(); } }, 650);
   }
+  renderQuiz();
+}
+// „Meine Antwort stimmt auch“: Antwort merken, Frage als richtig werten, 1 Münze (nur Tagesrunde)
+function acceptAlt() {
+  const r = save.round; if (!r) return;
+  const q = r.qs[r.i], a = r.ans[r.i];
+  if (!a || a.ok || a.accepted || q.t !== "write" || !a.given) return;
+  const lang = q.d === "fr2de" ? "de" : "fr";
+  const e = save.learn.alts[q.w] || (save.learn.alts[q.w] = { de: [], fr: [] });
+  if (!e[lang].some(x => looseKey(x) === looseKey(a.given))) e[lang].push(a.given.slice(0, 120));
+  // Lernkartei: Fehler zurücknehmen und als richtig werten
+  if (a.prev) save.learn.w[q.w] = Object.assign({}, a.prev); else delete save.learn.w[q.w];
+  applyResult(q.w, true);
+  a.ok = true; a.accepted = true;
+  a.coins = r.kind === "daily" ? 1 : 0;
+  r.earned = round2(r.earned + a.coins);
+  if (a.coins) addCoins(a.coins); else persist();
   renderQuiz();
 }
 function submitSpell() {
@@ -2763,8 +2792,26 @@ function openCustom() {
       <div class="row"><button class="btn" id="cw-add">Hinzufügen</button></div>
       <div id="cw-msg"></div>
     </div>
-    <div class="section"><h3>Deine Liste</h3><div id="cw-list"></div></div>`, "Meine Wörter");
-  render();
+    <div class="section"><h3>Deine Liste</h3><div id="cw-list"></div></div>
+    <div class="section"><h3>Eigene richtige Antworten</h3>
+      <p>Antworten, die du mit „Meine Antwort stimmt auch“ gemerkt hast. Tippe auf ×, um eine zu löschen.</p>
+      <div id="cw-alts"></div></div>`, "Meine Wörter");
+  const renderAlts = () => {
+    const rows = [];
+    for (const [id, e] of Object.entries(save.learn.alts || {})) {
+      const w = WORD[id]; if (!w) continue;
+      for (const lang of ["de", "fr"]) for (const v of e[lang] || []) rows.push(`<div class="wl-row"><span class="fr">${esc(lang === "de" ? w.fr : display(w.de))}</span><span class="de">${esc(v)}</span><button class="del" data-alt="${esc(id)}" data-lang="${lang}" data-v="${esc(v)}" aria-label="Löschen">${delIcon}</button></div>`);
+    }
+    sheet.querySelector("#cw-alts").innerHTML = rows.length ? `<div class="wl">${rows.join("")}</div>` : `<p class="hint">Noch keine.</p>`;
+  };
+  sheet.querySelector("#cw-alts").addEventListener("click", e => {
+    const b = e.target.closest("[data-alt]"); if (!b) return;
+    const ent = save.learn.alts[b.dataset.alt]; if (!ent) return;
+    ent[b.dataset.lang] = (ent[b.dataset.lang] || []).filter(v => v !== b.dataset.v);
+    if (!ent.de.length && !ent.fr.length) delete save.learn.alts[b.dataset.alt];
+    persist(); renderAlts();
+  });
+  render(); renderAlts();
   sheet.querySelector("#cw-add").addEventListener("click", () => {
     const lines = sheet.querySelector("#cw-in").value.split(/\n/).map(l => l.trim()).filter(Boolean);
     let added = 0, bad = 0, dup = 0;
